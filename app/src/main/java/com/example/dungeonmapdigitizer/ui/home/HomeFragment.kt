@@ -29,8 +29,11 @@ class HomeFragment : Fragment() {
         val root: View = binding.root
 
         val textView: TextView = binding.textHome
-        homeViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
+        homeViewModel.maps.observe(viewLifecycleOwner) {
+            maps -> val mapString = maps.joinToString{
+                "${it.index}: ${it.name}"
+            }
+            textView.text = mapString
         }
         return root
     }
