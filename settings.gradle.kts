@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "DungeonMapDigitizer"
+rootProject.name = "DungeonTest"
 include(":app")
  
