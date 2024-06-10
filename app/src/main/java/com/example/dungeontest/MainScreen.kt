@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import android.Manifest
+import android.util.Log
 import androidx.compose.material3.SnackbarHost
 
 import androidx.core.content.ContextCompat.startActivity
@@ -60,7 +61,9 @@ fun MainScreen(
     ) { success ->
         if (success) {
             photoUri?.let {
-                // TODO: Handle the photo URI - maybe send directly to openAI?
+                Log.v("MainScreen", "Photo URI: $it")
+                //todo go to map naming screen (pass along the photo uri somehow???, so it can be associated with the new map name that the user enters in the database)
+
             }
         }
     }
@@ -126,6 +129,7 @@ fun MainScreen(
 fun createImageFileUri(context: Context): Uri {
     val imagePath = File(context.getExternalFilesDir(null), "images")
     imagePath.mkdirs()
+    //todo need to make uuid instead of hardcoded name 'photo'?
     val imageFile = File(imagePath as File, "photo.jpg")
     return FileProvider.getUriForFile(context, "${context.packageName}.file provider", imageFile)
 }

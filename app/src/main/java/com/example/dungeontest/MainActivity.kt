@@ -170,6 +170,7 @@ fun ItemCard(item: MapDetails) {
 @Composable
 fun MapDetails(mapDetails: MapDetails) {
     ItemCard(item = mapDetails)
+    //todo add delete button here
 }
 
 fun loadDummyData(): List<MapDetails> {

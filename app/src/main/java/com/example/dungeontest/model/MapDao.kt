@@ -12,6 +12,9 @@ interface MapDao {
     @Query("SELECT * FROM maps")
     fun getAll(): List<Map>
 
+    @Query("SELECT * FROM maps WHERE map_name = :name LIMIT 1")
+    fun getExistingMapRecordIfExists(name: String): Map?//todo this may need to be wrapped in LiveData?
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertMap(map: Map): Long
 
