@@ -11,17 +11,17 @@ import androidx.room.Update
 @Dao
 interface MapDao {
     @Query("SELECT * FROM maps")
-    fun getAll(): LiveData<List<Map>>
+    fun getAll(): LiveData<List<MapRecord>>
 
     @Query("SELECT * FROM maps WHERE map_name = :name LIMIT 1")
-    fun getExistingMapRecordIfExists(name: String): Map?
+    fun getExistingMapRecordIfExists(name: String): MapRecord?
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertMap(map: Map): Long
+    fun insertMap(map: MapRecord): Long
 
     @Update
-    fun updateMap(map: Map): Int
+    fun updateMap(map: MapRecord): Int
 
     @Delete
-    fun deleteMap(map: Map): Int
+    fun deleteMap(map: MapRecord): Int
 }

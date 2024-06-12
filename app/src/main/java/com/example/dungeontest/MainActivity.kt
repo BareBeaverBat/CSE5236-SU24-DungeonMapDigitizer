@@ -34,7 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.dungeontest.ui.theme.DungeonTestTheme
 import kotlinx.coroutines.launch
 
-import com.example.dungeontest.model.Map
+import com.example.dungeontest.model.MapRecord
 
 class MainActivity : ComponentActivity() {
     private val TAG = "MainActivity"
@@ -138,7 +138,7 @@ fun DefaultPreview() {
 }
 
 @Composable
-fun ItemCard(item: Map) {
+fun ItemCard(item: MapRecord) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -173,7 +173,7 @@ fun ItemCard(item: Map) {
 }
 
 @Composable
-fun MapDetails(mapDetails: Map) {
+fun MapDetails(mapDetails: MapRecord) {
     ItemCard(item = mapDetails)
     //todo add delete button here
 }

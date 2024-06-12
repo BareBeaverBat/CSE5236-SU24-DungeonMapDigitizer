@@ -7,21 +7,21 @@ import kotlinx.coroutines.withContext
 
 class MapRepository(application: Application) {
     private var mapDao: MapDao
-    val allMaps: LiveData<List<Map>>
+    val allMaps: LiveData<List<MapRecord>>
 
-    suspend fun getMapIfExists(mapNam: String): Map? {
+    suspend fun getMapIfExists(mapNam: String): MapRecord? {
         return withContext(Dispatchers.IO) { mapDao.getExistingMapRecordIfExists(mapNam) }
     }
 
-    suspend fun insertMap(map: Map): Long {
+    suspend fun insertMap(map: MapRecord): Long {
         return withContext(Dispatchers.IO) { mapDao.insertMap(map) }
     }
 
-    suspend fun updateMap(map: Map): Int {
+    suspend fun updateMap(map: MapRecord): Int {
         return withContext(Dispatchers.IO) { mapDao.updateMap(map) }
     }
 
-    suspend fun deleteMap(map: Map): Int {
+    suspend fun deleteMap(map: MapRecord): Int {
         return withContext(Dispatchers.IO) { mapDao.deleteMap(map) }
     }
 

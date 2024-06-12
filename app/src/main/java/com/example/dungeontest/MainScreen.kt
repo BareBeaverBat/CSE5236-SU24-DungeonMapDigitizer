@@ -1,7 +1,6 @@
 package com.example.dungeontest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,11 +38,9 @@ import android.util.Log
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.livedata.observeAsState
 
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dungeontest.model.MapListViewModel
-import com.example.dungeontest.model.Map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
