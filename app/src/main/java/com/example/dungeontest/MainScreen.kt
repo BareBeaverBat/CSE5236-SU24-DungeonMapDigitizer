@@ -1,7 +1,6 @@
 package com.example.dungeontest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,10 +34,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import android.Manifest
+import android.util.Log
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.runtime.livedata.observeAsState
 
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.dungeontest.model.MapListViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -48,11 +50,12 @@ import java.io.File
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    dummyData: List<MapDetails>,
     drawerState: DrawerState,
     scope: CoroutineScope
 ) {
     val context = LocalContext.current
+    val viewModel = viewModel<MapListViewModel>()
+    val maps = viewModel.allMaps.observeAsState()
     var photoUri by remember { mutableStateOf<Uri?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -60,7 +63,9 @@ fun MainScreen(
     ) { success ->
         if (success) {
             photoUri?.let {
-                // TODO: Handle the photo URI - maybe send directly to openAI?
+                Log.v("MainScreen", "Photo URI: $it")
+                //todo go to map naming screen (pass along the photo uri somehow???, so it can be associated with the new map name that the user enters in the database)
+
             }
         }
     }
@@ -79,6 +84,8 @@ fun MainScreen(
             }
         }
     }
+
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
@@ -115,7 +122,8 @@ fun MainScreen(
                 contentPadding = PaddingValues(horizontal = 18.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(dummyData) { mapDetails ->
+
+                items(maps.value ?: listOf()) { mapDetails ->
                     MapDetails(mapDetails)
                 }
             }
@@ -126,6 +134,7 @@ fun MainScreen(
 fun createImageFileUri(context: Context): Uri {
     val imagePath = File(context.getExternalFilesDir(null), "images")
     imagePath.mkdirs()
-    val imageFile = File(imagePath as File, "photo.jpg")
+    //todo need to make uuid instead of hardcoded name 'photo'?
+    val imageFile = File(imagePath, "photo.jpg")
     return FileProvider.getUriForFile(context, "${context.packageName}.file provider", imageFile)
 }
