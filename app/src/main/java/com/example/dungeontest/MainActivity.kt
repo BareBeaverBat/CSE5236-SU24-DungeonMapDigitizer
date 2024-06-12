@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,6 +33,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.dungeontest.ui.theme.DungeonTestTheme
 import kotlinx.coroutines.launch
+
+import com.example.dungeontest.model.Map
 
 class MainActivity : ComponentActivity() {
     private val TAG = "MainActivity"
@@ -74,16 +77,11 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-data class MapDetails(
-    val title: String,
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyScreen() {
+fun MyScreen() {//todo discuss renaming this to something more informative like RootScreen or BaseScreen
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val dummyData = loadDummyData()
     val navController = rememberNavController()
 
     ModalNavigationDrawer(
@@ -110,7 +108,7 @@ fun MyScreen() {
                         scope.launch {
                             drawerState.close()
                             navController.navigate("SettingsScreen") {
-                                popUpTo("MainScreen") { inclusive = true }
+                                popUpTo("MainScreen") { inclusive = false }
                             }
 
                         }
@@ -121,7 +119,7 @@ fun MyScreen() {
     ) {
         NavHost(navController = navController, startDestination = "MainScreen") {
             composable("MainScreen") {
-                MainScreen(dummyData, drawerState, scope)
+                MainScreen(drawerState, scope)
             }
             composable("SettingsScreen") {
                 SettingsScreen(drawerState, scope)
@@ -140,7 +138,7 @@ fun DefaultPreview() {
 }
 
 @Composable
-fun ItemCard(item: MapDetails) {
+fun ItemCard(item: Map) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -157,30 +155,27 @@ fun ItemCard(item: MapDetails) {
                 .clickable(
                 ) {
 
-                    // Handle item click. Will do later
+                    //todo Handle item click. Will do later
                 }
         ) {
-            Text(
-                modifier = Modifier.padding(18.dp),
-                text = item.title)
+            Row {
+                Text(
+                    modifier = Modifier.padding(18.dp),
+                    text = item.mapName
+                )
+                Text(
+                    modifier = Modifier.padding(18.dp),
+                    text = item.pictureFileName.takeLast(20)
+                )
+            }
         }
     }
 }
 
 @Composable
-fun MapDetails(mapDetails: MapDetails) {
+fun MapDetails(mapDetails: Map) {
     ItemCard(item = mapDetails)
     //todo add delete button here
 }
 
-fun loadDummyData(): List<MapDetails> {
-    return listOf(
-        MapDetails("Map Saul"),
-        MapDetails("Map Kim"),
-        MapDetails("Map Nacho"),
-        MapDetails("Map Tuco"),
-        MapDetails("Map Mike"),
-
-    )
-}
 

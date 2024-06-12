@@ -1,5 +1,6 @@
 package com.example.dungeontest.model
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -10,10 +11,10 @@ import androidx.room.Update
 @Dao
 interface MapDao {
     @Query("SELECT * FROM maps")
-    fun getAll(): List<Map>
+    fun getAll(): LiveData<List<Map>>
 
     @Query("SELECT * FROM maps WHERE map_name = :name LIMIT 1")
-    fun getExistingMapRecordIfExists(name: String): Map?//todo this may need to be wrapped in LiveData?
+    fun getExistingMapRecordIfExists(name: String): Map?
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertMap(map: Map): Long

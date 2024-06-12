@@ -37,9 +37,13 @@ import androidx.compose.ui.unit.dp
 import android.Manifest
 import android.util.Log
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.runtime.livedata.observeAsState
 
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.dungeontest.model.MapListViewModel
+import com.example.dungeontest.model.Map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -49,11 +53,12 @@ import java.io.File
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    dummyData: List<MapDetails>,
     drawerState: DrawerState,
     scope: CoroutineScope
 ) {
     val context = LocalContext.current
+    val viewModel = viewModel<MapListViewModel>()
+    val maps = viewModel.allMaps.observeAsState()
     var photoUri by remember { mutableStateOf<Uri?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -82,6 +87,8 @@ fun MainScreen(
             }
         }
     }
+
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
@@ -118,7 +125,8 @@ fun MainScreen(
                 contentPadding = PaddingValues(horizontal = 18.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(dummyData) { mapDetails ->
+
+                items(maps.value ?: listOf()) { mapDetails ->
                     MapDetails(mapDetails)
                 }
             }
@@ -130,6 +138,6 @@ fun createImageFileUri(context: Context): Uri {
     val imagePath = File(context.getExternalFilesDir(null), "images")
     imagePath.mkdirs()
     //todo need to make uuid instead of hardcoded name 'photo'?
-    val imageFile = File(imagePath as File, "photo.jpg")
+    val imageFile = File(imagePath, "photo.jpg")
     return FileProvider.getUriForFile(context, "${context.packageName}.file provider", imageFile)
 }
