@@ -58,6 +58,10 @@ fun MainScreen(
     val maps = viewModel.allMaps.observeAsState()
     var photoUri by remember { mutableStateOf<Uri?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
+    //below would go on "MapNamingSavingScreen" or w/e we call it
+    val mapSavingState = remember {
+        mutableStateOf("not started")
+    }
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
@@ -128,6 +132,13 @@ fun MainScreen(
                 }
             }
         }
+
+        //below would go on "MapNamingSavingScreen" or w/e we call it
+        if (mapSavingState.value == "requested save would overwrite") {
+            //todo render the warning message composable
+            //todo render the overwrite button composable
+        }//otherwise do nothing
+
     }
 }
 
