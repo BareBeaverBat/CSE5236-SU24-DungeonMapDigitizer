@@ -2,6 +2,7 @@ package com.example.dungeontest
 
 import android.Manifest
 import android.content.res.Configuration
+import android.graphics.fonts.FontFamily
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -67,6 +68,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -88,7 +90,7 @@ import com.example.dungeontest.model.cardInfos
 fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
     val snackbarHostState = remember { SnackbarHostState() }
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-    var selectedCard by remember { mutableIntStateOf(cardInfos.firstOrNull { it.isDefault }?.id ?: 0 ) }
+    var selectedCard by rememberSaveable { mutableIntStateOf(cardInfos.firstOrNull { it.isDefault }?.id ?: 0 ) }
     Log.d("SettingsScreen", "selectedCard: $selectedCard")
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -176,7 +178,7 @@ fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
 
 @Composable
 fun SimpleOutlinedTextFieldSample() {
-    var text by remember { mutableStateOf("") }
+    var text by rememberSaveable { mutableStateOf("") }
     val maxLength = 40
     val aiEsqueColors = listOf(
         Color(0xFF607D8B),
@@ -195,6 +197,7 @@ fun SimpleOutlinedTextFieldSample() {
     }
     val textField = FocusRequester()
     val focusManager = LocalFocusManager.current
+    val textFieldWidth = (maxLength * 8).dp
     OutlinedTextField(
 
         value = text,
@@ -206,7 +209,7 @@ fun SimpleOutlinedTextFieldSample() {
             }
         },
 
-        modifier = Modifier.focusRequester(textField),
+        modifier = Modifier.focusRequester(textField).width(textFieldWidth),
         singleLine = true,
         shape = MaterialTheme.shapes.large,
         textStyle = TextStyle(brush = brush),
@@ -223,7 +226,7 @@ fun SimpleOutlinedTextFieldSample() {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun OutlinedCardExample(title: String, description: String, selectedCard: Boolean, onSelected: () -> Unit) {
-    var selected by remember { mutableStateOf(selectedCard) }
+    var selected by rememberSaveable { mutableStateOf(selectedCard) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     OutlinedCard(
