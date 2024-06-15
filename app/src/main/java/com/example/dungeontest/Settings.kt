@@ -46,7 +46,9 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberDrawerState
@@ -68,6 +70,12 @@ import kotlinx.coroutines.CoroutineScope
 @Composable
 fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
     val snackbarHostState = remember { SnackbarHostState() }
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    var selectedCard by remember { mutableIntStateOf(cardInfos.firstOrNull { it.isDefault }?.id ?: 0 ) }
+    Log.d("SettingsScreen", "selectedCard: $selectedCard")
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
 
     Scaffold(
         snackbarHost = {
@@ -111,7 +119,37 @@ fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
             ) {
                 Spacer(modifier = Modifier.height(2.dp))
                 SimpleOutlinedTextFieldSample()
+                Spacer(modifier = Modifier.width(2.dp))
+                if (isLandscape) {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 20.dp)
+
+                    ) {
+                        items(cardInfos) { models ->
+                            OutlinedCardExample(models.title, models.description, selectedCard == models.id) {
+                                selectedCard = models.id
+                            }
+                            Spacer(modifier = Modifier.width(20.dp))
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(cardInfos) { models ->
+                            OutlinedCardExample(models.title, models.description, selectedCard == models.id) {
+                                selectedCard = models.id
+                            }
+                        }
+                    }
+                }
             }
+
         }
     }
 }
@@ -155,3 +193,74 @@ fun SimpleOutlinedTextFieldSample() {
 
     )
 }
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun OutlinedCardExample(title: String, description: String, selectedCard: Boolean, onSelected: () -> Unit) {
+    var selected by remember { mutableStateOf(selectedCard) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    OutlinedCard(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        border = BorderStroke(1.dp, Color.Black),
+        modifier = Modifier
+
+
+    ) {
+        Column(modifier = Modifier
+            .clickable {
+                onSelected()
+                keyboardController?.hide()
+                focusManager.clearFocus()
+            }
+            .defaultMinSize(200.dp, 120.dp)
+        ){
+            Row() {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .width(160.dp)
+                ) {
+
+                    //Title
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier
+                            .padding(bottom = 8.dp)
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                    )
+
+                    //Description
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier
+                            .padding(bottom = 8.dp)
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                    )
+
+
+                }
+                Column(
+                    modifier = Modifier
+                        .padding(start = 10.dp, end = 10.dp)
+                        .align(Alignment.CenterVertically)
+                ) {
+                    RadioButton(
+                        selected = selectedCard,
+                        onClick = null
+                    )
+                }
+            }
+
+        }
+
+
+    }
+}
+
