@@ -1,6 +1,7 @@
 package com.example.dungeontest.data
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -11,36 +12,35 @@ import com.example.dungeontest.model.cardInfos
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class Preferences(private val context: Context) {
+class SettingsStorage(private val context: Context) {
     companion object {
-        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("userToken")
-        private val USER_TOKEN_KEY = stringPreferencesKey("user_token")
-        private val USER_SELECTED_MODEL = intPreferencesKey("user_selected_model")
+        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("userConfig")
+        private val API_TOKEN = stringPreferencesKey("apiToken")
+        private val SELECTED_MODEL_ID = intPreferencesKey("selectedModelId")
     }
 
     val getAccessToken: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[USER_TOKEN_KEY] ?: ""
+        preferences[API_TOKEN] ?: ""
     }
 
     val getSelectedModel: Flow<Int> = context.dataStore.data.map { preferences ->
-        preferences[USER_SELECTED_MODEL] ?: cardInfos.firstOrNull { it.isDefault }?.id ?: 0
+        Log.d("SettingsStorage", "getSelectedModel: ${preferences[SELECTED_MODEL_ID]}")
+        preferences[SELECTED_MODEL_ID] ?: cardInfos.firstOrNull { it.isDefault }?.id ?: -1
     }
 
     suspend fun saveToken(token: String) {
         context.dataStore.edit { preferences ->
-            preferences[USER_TOKEN_KEY] = token
+            preferences[API_TOKEN] = token
         }
     }
-    suspend fun saveSelectedModel(model: Int) {
+    suspend fun saveSelectedModel(modelId: Int) {
         context.dataStore.edit { preferences ->
-            preferences[USER_SELECTED_MODEL] = model
+            preferences[SELECTED_MODEL_ID] = modelId
         }
     }
 
-    suspend fun initSelectedModel() {
-        val defaultModel = cardInfos.firstOrNull { it.isDefault }?.id ?: 0
-        saveSelectedModel(defaultModel)
-    }
+
+    
 }
 
 
