@@ -41,6 +41,7 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
@@ -252,13 +253,14 @@ fun SimpleOutlinedTextFieldSample(tokenValue: MutableState<TextFieldValue>) {
 fun OutlinedCardExample(id: Int, title: String, description: String, selectedCard: MutableState<Int>) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
-    OutlinedCard(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ),
-        border = BorderStroke(1.dp, Color.Black),
-        modifier = Modifier
 
+    OutlinedCard(
+
+        modifier = Modifier,
+        border = BorderStroke(
+            width = 2.dp,
+            color = if (selectedCard.value == id) MaterialTheme.colorScheme.primary else Color.Gray
+        ),
 
     ) {
         Column(modifier = Modifier
@@ -267,7 +269,7 @@ fun OutlinedCardExample(id: Int, title: String, description: String, selectedCar
                 keyboardController?.hide()
                 focusManager.clearFocus()
             }
-            .defaultMinSize(200.dp, 120.dp)
+            .defaultMinSize(200.dp, 140.dp)
         ){
             Row() {
                 Column(
@@ -278,6 +280,7 @@ fun OutlinedCardExample(id: Int, title: String, description: String, selectedCar
 
                     //Title
                     Text(
+                        color = if (selectedCard.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
                         text = title,
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier
@@ -288,6 +291,7 @@ fun OutlinedCardExample(id: Int, title: String, description: String, selectedCar
 
                     //Description
                     Text(
+                        color = if (selectedCard.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
                         text = description,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
@@ -304,6 +308,10 @@ fun OutlinedCardExample(id: Int, title: String, description: String, selectedCar
                         .align(Alignment.CenterVertically)
                 ) {
                     RadioButton(
+                        colors = RadioButtonDefaults.colors(
+                            selectedColor = MaterialTheme.colorScheme.primary,
+                            unselectedColor = Color.Gray
+                        ),
                         selected = selectedCard.value == id,
                         onClick = null
                     )
