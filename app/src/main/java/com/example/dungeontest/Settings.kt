@@ -63,6 +63,9 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -77,24 +80,71 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.CoroutineScope
 import com.example.dungeontest.model.AvailableModels
 import com.example.dungeontest.model.cardInfos
+import com.example.dungeontest.data.Preferences
+import com.example.dungeontest.model.SettingsViewModel
+import kotlinx.coroutines.Dispatchers
+
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
+fun SettingsScreen(
+    drawerState: DrawerState,
+    scope: CoroutineScope,
+) {
+
+    // Remembering state
     val snackbarHostState = remember { SnackbarHostState() }
+
+
+    // Logging stuff
+
+
+    // Checking device orientation
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-    var selectedCard by rememberSaveable { mutableIntStateOf(cardInfos.firstOrNull { it.isDefault }?.id ?: 0 ) }
-    Log.d("SettingsScreen", "selectedCard: $selectedCard")
+
+    // Managing focus and keyboard
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
+    // Context and preferences datastore
+    val context = LocalContext.current
+    val preferences = Preferences(context)
+
+    // Value for the text field
+    val tokenValue = remember {
+        mutableStateOf(TextFieldValue())
+    }
+
+    var selectedCard = remember { mutableStateOf(-1) }
+    Log.d("SettingsScreen", "selectedCard initialized to 0: $selectedCard")
+    val tokenText = preferences.getAccessToken.collectAsState(initial = "")
+
+    // fetch the value from the Preferences datastore
+    LaunchedEffect(key1 = preferences) {
+        preferences.getAccessToken.collect { token ->
+            tokenValue.value = TextFieldValue(token)
+            Log.d("SettingsScreen", "FUCK YOu updated from getSelectedModel: $selectedCard")
+        }
+
+    }
+    LaunchedEffect(key1 = preferences) {
+
+        preferences.getSelectedModel.collect { model ->
+            selectedCard.value = model
+            Log.d("SettingsScreen", "selectedCard updated from getSelectedModel: $selectedCard")
+        }
+    }
 
     Scaffold(
         snackbarHost = {
@@ -118,8 +168,12 @@ fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = {
-                /* TODO: Implement FAB action */
-
+                Log.d("SettingsScreen", "tokenValue: ${tokenValue.value.text}")
+                Log.d("SettingsScreen", "selectedCard: $selectedCard")
+                CoroutineScope(Dispatchers.IO).launch {
+                    preferences.saveToken(tokenValue.value.text)
+                    preferences.saveSelectedModel(selectedCard.value)
+                }
             }) {
                 Icon(Icons.Filled.Check, contentDescription = "Save")
                 Text("Save")
@@ -140,7 +194,7 @@ fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
                 modifier = Modifier.fillMaxSize()
             ) {
                 Spacer(modifier = Modifier.width(2.dp))
-                SimpleOutlinedTextFieldSample()
+                SimpleOutlinedTextFieldSample(tokenValue)
                 Spacer(modifier = Modifier.width(2.dp))
                 if (isLandscape) {
                     LazyRow(
@@ -151,9 +205,7 @@ fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
 
                     ) {
                         items(cardInfos) { models ->
-                            OutlinedCardExample(models.title, models.description, selectedCard == models.id) {
-                                selectedCard = models.id
-                            }
+                            OutlinedCardExample(models.id, models.title, models.description, selectedCard)
                             Spacer(modifier = Modifier.width(20.dp))
                         }
                     }
@@ -164,9 +216,7 @@ fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(cardInfos) { models ->
-                            OutlinedCardExample(models.title, models.description, selectedCard == models.id) {
-                                selectedCard = models.id
-                            }
+                            OutlinedCardExample(models.id, models.title, models.description, selectedCard)
                         }
                     }
                 }
@@ -177,8 +227,7 @@ fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
 }
 
 @Composable
-fun SimpleOutlinedTextFieldSample() {
-    var text by rememberSaveable { mutableStateOf("") }
+fun SimpleOutlinedTextFieldSample(tokenValue: MutableState<TextFieldValue>) {
     val maxLength = 40
     val aiEsqueColors = listOf(
         Color(0xFF607D8B),
@@ -199,14 +248,10 @@ fun SimpleOutlinedTextFieldSample() {
     val focusManager = LocalFocusManager.current
     val textFieldWidth = (maxLength * 8).dp
     OutlinedTextField(
-
-        value = text,
+        value = tokenValue.value,
         onValueChange = {
-            if (it.length <= maxLength) text = it
-            if (it.length == 2) {
-                textField.freeFocus()
-
-            }
+            tokenValue.value = it
+//            Log.d("SimpleOutlinedTextFieldSample", "New value: $text")
         },
 
         modifier = Modifier.focusRequester(textField).width(textFieldWidth),
@@ -225,8 +270,7 @@ fun SimpleOutlinedTextFieldSample() {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun OutlinedCardExample(title: String, description: String, selectedCard: Boolean, onSelected: () -> Unit) {
-    var selected by rememberSaveable { mutableStateOf(selectedCard) }
+fun OutlinedCardExample(id: Int, title: String, description: String, selectedCard: MutableState<Int>) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     OutlinedCard(
@@ -240,7 +284,7 @@ fun OutlinedCardExample(title: String, description: String, selectedCard: Boolea
     ) {
         Column(modifier = Modifier
             .clickable {
-                onSelected()
+                selectedCard.value = id
                 keyboardController?.hide()
                 focusManager.clearFocus()
             }
@@ -281,7 +325,7 @@ fun OutlinedCardExample(title: String, description: String, selectedCard: Boolea
                         .align(Alignment.CenterVertically)
                 ) {
                     RadioButton(
-                        selected = selectedCard,
+                        selected = selectedCard.value == id,
                         onClick = null
                     )
                 }
