@@ -1,13 +1,7 @@
 package com.example.dungeontest
 
-import android.Manifest
 import android.content.res.Configuration
-import android.graphics.fonts.FontFamily
-import android.os.Bundle
 import android.util.Log
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,28 +11,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.CardDefaults
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -49,8 +32,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.dungeontest.ui.theme.DungeonTestTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
@@ -62,14 +43,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusRequester
@@ -77,23 +55,68 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.coroutines.CoroutineScope
-import com.example.dungeontest.model.AvailableModels
 import com.example.dungeontest.model.cardInfos
+import com.example.dungeontest.data.Preferences
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
+fun SettingsScreen(
+    drawerState: DrawerState,
+    scope: CoroutineScope,
+) {
+
+    // Remembering state
     val snackbarHostState = remember { SnackbarHostState() }
+
+
+    // Logging stuff
+
+
+    // Checking device orientation
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-    var selectedCard by rememberSaveable { mutableIntStateOf(cardInfos.firstOrNull { it.isDefault }?.id ?: 0 ) }
-    Log.d("SettingsScreen", "selectedCard: $selectedCard")
+
+    // Managing focus and keyboard
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
+
+    // Context and preferences datastore
+    val context = LocalContext.current
+    val preferences = Preferences(context)
+
+    // Value for the text field
+    val tokenValue = remember {
+        mutableStateOf(TextFieldValue())
+    }
+
+    var selectedCard = remember { mutableStateOf(-1) }
+    Log.d("SettingsScreen", "selectedCard initialized to 0: $selectedCard")
+    val tokenText = preferences.getAccessToken.collectAsState(initial = "")
+
+    // fetch the value from the Preferences datastore
+    LaunchedEffect(key1 = preferences) {
+        launch {
+            preferences.getAccessToken.collect { token ->
+                tokenValue.value = TextFieldValue(token)
+                Log.d("SettingsScreen", "FUCK YOu updated from getSelectedModel: $selectedCard")
+            }
+        }
+        launch {
+            preferences.getSelectedModel.collect { model ->
+                selectedCard.value = model
+            }
+        }
+
+
+    }
 
 
     Scaffold(
@@ -118,8 +141,18 @@ fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = {
-                /* TODO: Implement FAB action */
+                Log.d("SettingsScreen", "tokenValue: ${tokenValue.value.text}")
+                Log.d("SettingsScreen", "selectedCard: $selectedCard")
+                CoroutineScope(Dispatchers.IO).launch {
+                    preferences.saveToken(tokenValue.value.text)
+                    preferences.saveSelectedModel(selectedCard.value)
+                    withContext(Dispatchers.Main) {
+                        if (snackbarHostState.currentSnackbarData == null) {
 
+                            snackbarHostState.showSnackbar("Data saved successfully")
+                        }
+                    }
+                }
             }) {
                 Icon(Icons.Filled.Check, contentDescription = "Save")
                 Text("Save")
@@ -140,7 +173,7 @@ fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
                 modifier = Modifier.fillMaxSize()
             ) {
                 Spacer(modifier = Modifier.width(2.dp))
-                SimpleOutlinedTextFieldSample()
+                SimpleOutlinedTextFieldSample(tokenValue)
                 Spacer(modifier = Modifier.width(2.dp))
                 if (isLandscape) {
                     LazyRow(
@@ -151,9 +184,7 @@ fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
 
                     ) {
                         items(cardInfos) { models ->
-                            OutlinedCardExample(models.title, models.description, selectedCard == models.id) {
-                                selectedCard = models.id
-                            }
+                            OutlinedCardExample(models.id, models.title, models.description, selectedCard)
                             Spacer(modifier = Modifier.width(20.dp))
                         }
                     }
@@ -164,9 +195,7 @@ fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(cardInfos) { models ->
-                            OutlinedCardExample(models.title, models.description, selectedCard == models.id) {
-                                selectedCard = models.id
-                            }
+                            OutlinedCardExample(models.id, models.title, models.description, selectedCard)
                         }
                     }
                 }
@@ -177,8 +206,7 @@ fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
 }
 
 @Composable
-fun SimpleOutlinedTextFieldSample() {
-    var text by rememberSaveable { mutableStateOf("") }
+fun SimpleOutlinedTextFieldSample(tokenValue: MutableState<TextFieldValue>) {
     val maxLength = 40
     val aiEsqueColors = listOf(
         Color(0xFF607D8B),
@@ -199,14 +227,10 @@ fun SimpleOutlinedTextFieldSample() {
     val focusManager = LocalFocusManager.current
     val textFieldWidth = (maxLength * 8).dp
     OutlinedTextField(
-
-        value = text,
+        value = tokenValue.value,
         onValueChange = {
-            if (it.length <= maxLength) text = it
-            if (it.length == 2) {
-                textField.freeFocus()
-
-            }
+            tokenValue.value = it
+//            Log.d("SimpleOutlinedTextFieldSample", "New value: $text")
         },
 
         modifier = Modifier.focusRequester(textField).width(textFieldWidth),
@@ -225,8 +249,7 @@ fun SimpleOutlinedTextFieldSample() {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun OutlinedCardExample(title: String, description: String, selectedCard: Boolean, onSelected: () -> Unit) {
-    var selected by rememberSaveable { mutableStateOf(selectedCard) }
+fun OutlinedCardExample(id: Int, title: String, description: String, selectedCard: MutableState<Int>) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     OutlinedCard(
@@ -240,7 +263,7 @@ fun OutlinedCardExample(title: String, description: String, selectedCard: Boolea
     ) {
         Column(modifier = Modifier
             .clickable {
-                onSelected()
+                selectedCard.value = id
                 keyboardController?.hide()
                 focusManager.clearFocus()
             }
@@ -281,7 +304,7 @@ fun OutlinedCardExample(title: String, description: String, selectedCard: Boolea
                         .align(Alignment.CenterVertically)
                 ) {
                     RadioButton(
-                        selected = selectedCard,
+                        selected = selectedCard.value == id,
                         onClick = null
                     )
                 }

@@ -7,6 +7,7 @@ data class AvailableModels(
     val isDefault: Boolean
 )
 
+// first model in the list with isDefault == true will be selected by default
 val cardInfos = listOf(
     AvailableModels(id = 0,"GPT-4", "OpenAI's most complex model", true),
     AvailableModels(id = 1,"GPT-4o", "OpenAI's latest model", false),
