@@ -91,15 +91,17 @@ fun SettingsScreen(
 
     // Context and preferences datastore
     val context = LocalContext.current
-    val preferences = Preferences(context)
+    val preferences = SettingsStorage(context)
 
     // Value for the text field
     val tokenValue = remember {
         mutableStateOf(TextFieldValue())
     }
 
-    var selectedCard = remember { mutableStateOf(-1) }
-    Log.d("SettingsScreen", "selectedCard initialized to 0: $selectedCard")
+
+
+    var selectedModel = remember { mutableIntStateOf(-1) }
+    Log.d("SettingsScreen", "selectedModel initialized to -1: $selectedModel")
     val tokenText = preferences.getAccessToken.collectAsState(initial = "")
 
     // fetch the value from the Preferences datastore
@@ -142,11 +144,12 @@ fun SettingsScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = {
-                Log.d("SettingsScreen", "tokenValue: ${tokenValue.value.text}")
-                Log.d("SettingsScreen", "selectedCard: $selectedCard")
+                Log.d("SettingsScreen", "tokenValue onClick FAB: ${tokenValue.value.text}")
+                Log.d("SettingsScreen", "selectedModel onClick FAB: $selectedModel")
+
                 CoroutineScope(Dispatchers.IO).launch {
                     preferences.saveToken(tokenValue.value.text)
-                    preferences.saveSelectedModel(selectedCard.value)
+                    preferences.saveSelectedModel(selectedModel.value)
                     withContext(Dispatchers.Main) {
                         if (snackbarHostState.currentSnackbarData == null) {
 
@@ -174,7 +177,7 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 Spacer(modifier = Modifier.width(2.dp))
-                SimpleOutlinedTextFieldSample(tokenValue)
+                ApiTokenInputField(tokenValue)
                 Spacer(modifier = Modifier.width(2.dp))
                 if (isLandscape) {
                     LazyRow(
@@ -185,7 +188,7 @@ fun SettingsScreen(
 
                     ) {
                         items(cardInfos) { models ->
-                            OutlinedCardExample(models.id, models.title, models.description, selectedCard)
+                            ModelCard(models.id, models.title, models.description, selectedModel)
                             Spacer(modifier = Modifier.width(20.dp))
                         }
                     }
@@ -196,7 +199,7 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(cardInfos) { models ->
-                            OutlinedCardExample(models.id, models.title, models.description, selectedCard)
+                            ModelCard(models.id, models.title, models.description, selectedModel)
                         }
                     }
                 }
@@ -207,7 +210,7 @@ fun SettingsScreen(
 }
 
 @Composable
-fun SimpleOutlinedTextFieldSample(tokenValue: MutableState<TextFieldValue>) {
+fun ApiTokenInputField(tokenValue: MutableState<TextFieldValue>) {
     val maxLength = 40
     val aiEsqueColors = listOf(
         Color(0xFF607D8B),
@@ -234,7 +237,9 @@ fun SimpleOutlinedTextFieldSample(tokenValue: MutableState<TextFieldValue>) {
 //            Log.d("SimpleOutlinedTextFieldSample", "New value: $text")
         },
 
-        modifier = Modifier.focusRequester(textField).width(textFieldWidth),
+        modifier = Modifier
+            .focusRequester(textField)
+            .width(textFieldWidth),
         singleLine = true,
         shape = MaterialTheme.shapes.large,
         textStyle = TextStyle(brush = brush),
@@ -250,7 +255,7 @@ fun SimpleOutlinedTextFieldSample(tokenValue: MutableState<TextFieldValue>) {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun OutlinedCardExample(id: Int, title: String, description: String, selectedCard: MutableState<Int>) {
+fun ModelCard(id: Int, title: String, description: String, selectedModel: MutableState<Int>) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
@@ -259,13 +264,13 @@ fun OutlinedCardExample(id: Int, title: String, description: String, selectedCar
         modifier = Modifier,
         border = BorderStroke(
             width = 2.dp,
-            color = if (selectedCard.value == id) MaterialTheme.colorScheme.primary else Color.Gray
+            color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray
         ),
 
     ) {
         Column(modifier = Modifier
             .clickable {
-                selectedCard.value = id
+                selectedModel.value = id
                 keyboardController?.hide()
                 focusManager.clearFocus()
             }
@@ -280,7 +285,7 @@ fun OutlinedCardExample(id: Int, title: String, description: String, selectedCar
 
                     //Title
                     Text(
-                        color = if (selectedCard.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
+                        color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
                         text = title,
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier
@@ -291,7 +296,7 @@ fun OutlinedCardExample(id: Int, title: String, description: String, selectedCar
 
                     //Description
                     Text(
-                        color = if (selectedCard.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
+                        color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
                         text = description,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
@@ -312,7 +317,7 @@ fun OutlinedCardExample(id: Int, title: String, description: String, selectedCar
                             selectedColor = MaterialTheme.colorScheme.primary,
                             unselectedColor = Color.Gray
                         ),
-                        selected = selectedCard.value == id,
+                        selected = selectedModel.value == id,
                         onClick = null
                     )
                 }
