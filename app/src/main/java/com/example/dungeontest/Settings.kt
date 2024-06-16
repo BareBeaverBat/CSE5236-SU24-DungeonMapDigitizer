@@ -47,6 +47,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -63,8 +64,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.coroutines.CoroutineScope
 import com.example.dungeontest.model.cardInfos
-import com.example.dungeontest.data.Preferences
+import com.example.dungeontest.data.SettingsStorage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
 
 
@@ -104,17 +106,19 @@ fun SettingsScreen(
     Log.d("SettingsScreen", "selectedModel initialized to -1: $selectedModel")
     val tokenText = preferences.getAccessToken.collectAsState(initial = "")
 
-    // fetch the value from the Preferences datastore
+
     LaunchedEffect(key1 = preferences) {
         launch {
             preferences.getAccessToken.collect { token ->
                 tokenValue.value = TextFieldValue(token)
-                Log.d("SettingsScreen", "FUCK YOu updated from getSelectedModel: $selectedCard")
+                Log.d("SettingsScreen", "tokenValue updated from SettingsStorage: $tokenValue")
             }
         }
+
         launch {
             preferences.getSelectedModel.collect { model ->
-                selectedCard.value = model
+                selectedModel.value = model
+                Log.d("SettingsScreen", "selectedModel updated from SettingsStorage: $selectedModel")
             }
         }
 
@@ -148,16 +152,22 @@ fun SettingsScreen(
                 Log.d("SettingsScreen", "selectedModel onClick FAB: $selectedModel")
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    preferences.saveToken(tokenValue.value.text)
-                    preferences.saveSelectedModel(selectedModel.value)
+                    launch {
+                        preferences.saveToken(tokenValue.value.text)
+                    }
+                    launch {
+                        preferences.saveSelectedModel(selectedModel.value)
+                    }
+
                     withContext(Dispatchers.Main) {
                         if (snackbarHostState.currentSnackbarData == null) {
-
                             snackbarHostState.showSnackbar("Data saved successfully")
                         }
                     }
                 }
+
             }) {
+
                 Icon(Icons.Filled.Check, contentDescription = "Save")
                 Text("Save")
 
