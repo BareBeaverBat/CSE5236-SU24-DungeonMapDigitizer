@@ -61,19 +61,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.LineHeightStyle
 import kotlinx.coroutines.CoroutineScope
+import android.util.Base64
+import android.util.Log
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Button
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
+fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedPhotoUri: String) {
     val snackbarHostState = remember { SnackbarHostState() }
-
+    val photoUri = String(Base64.decode(base64EncodedPhotoUri, Base64.NO_WRAP), Charsets.UTF_8)
+    Log.v("NamingScreen", photoUri)
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         },
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Settings") },
+                title = { Text("Create Map") },
                 navigationIcon = {
                     IconButton(onClick = {
                         scope.launch {
@@ -97,48 +102,17 @@ fun SettingsScreen(drawerState: DrawerState, scope: CoroutineScope) {
                 modifier = Modifier.fillMaxSize()
             ) {
                 Spacer(modifier = Modifier.height(2.dp))
-                SimpleOutlinedTextFieldSample("Your OpenAI Key")
+                SimpleOutlinedTextFieldSample("Map Name")
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
+                    onClick = { /* This is where you save things */},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp, vertical = 10.dp)
+                ) {
+                    Text("Save")
+                }
             }
         }
     }
-}
-
-@Composable
-fun SimpleOutlinedTextFieldSample(labelText: String) {
-    var text by remember { mutableStateOf("") }
-    val maxLength = 40
-    val aiEsqueColors = listOf(
-        Color(0xFF607D8B),
-        Color(0xFF3F51B5),
-        Color(0xFF2196F3),
-        Color(0xFF03A9F4),
-        Color(0xFF00BCD4),
-        Color(0xFF009688),
-        Color(0xFF4CAF50),
-        Color(0xFF8BC34A)
-    )
-    val brush = remember {
-        Brush.linearGradient(
-            colors = aiEsqueColors
-        )
-    }
-    val textField = FocusRequester()
-    OutlinedTextField(
-
-        value = text,
-        onValueChange = {
-            if (it.length <= maxLength) text = it
-            if (it.length == 2) {
-                textField.freeFocus()
-
-            }
-        },
-
-        modifier = Modifier.focusRequester(textField),
-        singleLine = true,
-        shape = MaterialTheme.shapes.large,
-        textStyle = TextStyle(brush = brush),
-        label = { Text(labelText) }
-
-    )
 }

@@ -40,10 +40,14 @@ import androidx.compose.runtime.livedata.observeAsState
 
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.dungeontest.model.MapListViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+
 import java.io.File
+import android.util.Base64
+import androidx.navigation.NavController
 
 
 @SuppressLint("RememberReturnType")
@@ -51,7 +55,8 @@ import java.io.File
 @Composable
 fun MainScreen(
     drawerState: DrawerState,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    navController: NavController
 ) {
     val context = LocalContext.current
     val viewModel = viewModel<MapListViewModel>()
@@ -64,8 +69,13 @@ fun MainScreen(
         if (success) {
             photoUri?.let {
                 Log.v("MainScreen", "Photo URI: $it")
-                //todo go to map naming screen (pass along the photo uri somehow???, so it can be associated with the new map name that the user enters in the database)
+                /* Encode the URI to base64 because it's a file path. Navigation uses / */
 
+                 val base64EncodedUri = Base64.encodeToString(it.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+                /* navcontroller is passed from the NavGraph setup in MainActivity */
+                navController.navigate("NamingScreen/$base64EncodedUri") {
+                    popUpTo("NamingScreen") { inclusive = true }
+                }
             }
         }
     }

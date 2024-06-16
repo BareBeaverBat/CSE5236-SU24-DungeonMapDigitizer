@@ -33,6 +33,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.dungeontest.ui.theme.DungeonTestTheme
 import kotlinx.coroutines.launch
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
 
 import com.example.dungeontest.model.MapRecord
 
@@ -114,15 +116,37 @@ fun MyScreen() {//todo discuss renaming this to something more informative like 
                         }
                     }
                 )
+
+                NavigationDrawerItem(
+                    label = { Text("Naming Test", style = MaterialTheme.typography.titleMedium) },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("NamingScreen/Something") {
+                                popUpTo("NamingScreen") { inclusive = false }
+                            }
+
+                        }
+                    }
+                )
             }
         },
     ) {
         NavHost(navController = navController, startDestination = "MainScreen") {
             composable("MainScreen") {
-                MainScreen(drawerState, scope)
+                MainScreen(drawerState, scope, navController)
             }
             composable("SettingsScreen") {
                 SettingsScreen(drawerState, scope)
+            }
+
+            composable (
+                "NamingScreen/{PhotoUri}",
+                arguments = listOf(navArgument("PhotoUri") { type = NavType.StringType })
+            ){ backStack ->
+                val photoUri = backStack.arguments?.getString("PhotoUri") ?: ""
+                NamingScreen(drawerState, scope, photoUri)
             }
         }
     }
