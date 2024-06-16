@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.CardDefaults
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +27,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
-
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -46,7 +44,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,7 +63,6 @@ import kotlinx.coroutines.CoroutineScope
 import com.example.dungeontest.model.cardInfos
 import com.example.dungeontest.data.SettingsStorage
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
 
 
@@ -76,13 +72,8 @@ fun SettingsScreen(
     drawerState: DrawerState,
     scope: CoroutineScope,
 ) {
-
     // Remembering state
     val snackbarHostState = remember { SnackbarHostState() }
-
-
-    // Logging stuff
-
 
     // Checking device orientation
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -100,11 +91,8 @@ fun SettingsScreen(
         mutableStateOf(TextFieldValue())
     }
 
-
-
-    var selectedModel = remember { mutableIntStateOf(-1) }
+    val selectedModel = remember { mutableIntStateOf(-1) }
     Log.d("SettingsScreen", "selectedModel initialized to -1: $selectedModel")
-    val tokenText = preferences.getAccessToken.collectAsState(initial = "")
 
 
     LaunchedEffect(key1 = preferences) {
@@ -117,14 +105,12 @@ fun SettingsScreen(
 
         launch {
             preferences.getSelectedModel.collect { model ->
-                selectedModel.value = model
+                selectedModel.intValue = model
                 Log.d("SettingsScreen", "selectedModel updated from SettingsStorage: $selectedModel")
             }
         }
 
-
     }
-
 
     Scaffold(
         snackbarHost = {
@@ -156,7 +142,7 @@ fun SettingsScreen(
                         preferences.saveToken(tokenValue.value.text)
                     }
                     launch {
-                        preferences.saveSelectedModel(selectedModel.value)
+                        preferences.saveSelectedModel(selectedModel.intValue)
                     }
 
                     withContext(Dispatchers.Main) {
@@ -244,7 +230,6 @@ fun ApiTokenInputField(tokenValue: MutableState<TextFieldValue>) {
         value = tokenValue.value,
         onValueChange = {
             tokenValue.value = it
-//            Log.d("SimpleOutlinedTextFieldSample", "New value: $text")
         },
 
         modifier = Modifier
@@ -337,5 +322,9 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Mutabl
 
 
     }
+
+
 }
+
+
 
