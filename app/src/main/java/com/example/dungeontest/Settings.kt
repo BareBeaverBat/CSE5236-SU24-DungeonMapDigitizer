@@ -19,8 +19,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -263,67 +263,62 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Mutabl
         ),
 
     ) {
-        Column(modifier = Modifier
-            .clickable {
-                selectedModel.value = id
-                keyboardController?.hide()
-                focusManager.clearFocus()
-            }
-            .defaultMinSize(200.dp, 140.dp)
-        ){
-            Row() {
-                Column(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .width(160.dp)
-                ) {
-
-                    //Title
-                    Text(
-                        color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
-                        text = title,
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier
-                            .padding(bottom = 8.dp)
-                            .wrapContentHeight()
-                            .fillMaxWidth()
-                    )
-
-                    //Description
-                    Text(
-                        color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
-                        text = description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier
-                            .padding(bottom = 8.dp)
-                            .wrapContentHeight()
-                            .fillMaxWidth()
-                    )
-
-
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .width(200.dp)
+                .height(120.dp)
+                .clickable {
+                    selectedModel.value = id
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
                 }
-                Column(
-                    modifier = Modifier
-                        .padding(start = 10.dp, end = 10.dp)
-                        .align(Alignment.CenterVertically)
-                ) {
-                    RadioButton(
-                        colors = RadioButtonDefaults.colors(
-                            selectedColor = MaterialTheme.colorScheme.primary,
-                            unselectedColor = Color.Gray
-                        ),
-                        selected = selectedModel.value == id,
-                        onClick = null
-                    )
-                }
-            }
+        ) {
+            Column(
+                modifier = Modifier
+                    .width(160.dp)
 
+            ) {
+
+                //Title
+                Text(
+                    color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
+                    text = title,
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                )
+
+                //Description
+                Text(
+                    color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                )
+
+
+            }
+            Column(
+                modifier = Modifier
+                    .padding(start = 10.dp, end = 10.dp)
+                    .align(Alignment.CenterVertically)
+            ) {
+                RadioButton(
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = MaterialTheme.colorScheme.primary,
+                        unselectedColor = Color.Gray
+                    ),
+                    selected = selectedModel.value == id,
+                    onClick = null
+                )
+            }
         }
-
-
     }
-
-
 }
 
 
