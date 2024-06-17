@@ -148,7 +148,7 @@ fun DefaultPreview() {
 }
 
 @Composable
-fun ItemCard(item: MapRecord, modifier: Modifier = Modifier) {
+fun MapDetailsCard(item: MapRecord, modifier: Modifier = Modifier) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -181,9 +181,9 @@ fun ItemCard(item: MapRecord, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun MapDetails(mapDetails: MapRecord, viewModel: MapListViewModel, modifier: Modifier = Modifier) {
+fun SavedMapEntry(mapDetails: MapRecord, viewModel: MapListViewModel, modifier: Modifier = Modifier) {
     Row(modifier = modifier) {
-        ItemCard(item = mapDetails, Modifier.weight(0.9f))
+        MapDetailsCard(item = mapDetails, Modifier.weight(0.9f))
         IconButton(onClick = {
             CoroutineScope(Dispatchers.IO).launch {
                 val deleteResult = viewModel.deleteMap(mapDetails)
