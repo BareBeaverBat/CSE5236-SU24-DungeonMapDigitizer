@@ -173,7 +173,7 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 Spacer(modifier = Modifier.width(2.dp))
-                ApiTokenInputField(tokenValue)
+                TextInputField(tokenValue, "Your OpenAI Key")
                 Spacer(modifier = Modifier.width(2.dp))
                 if (isLandscape) {
                     LazyRow(
@@ -206,7 +206,7 @@ fun SettingsScreen(
 }
 
 @Composable
-fun ApiTokenInputField(tokenValue: MutableState<TextFieldValue>) {
+fun TextInputField(tokenValue: MutableState<TextFieldValue>, labelText: String) {
     val maxLength = 40
     val aiEsqueColors = listOf(
         Color(0xFF607D8B),
@@ -238,7 +238,7 @@ fun ApiTokenInputField(tokenValue: MutableState<TextFieldValue>) {
         singleLine = true,
         shape = MaterialTheme.shapes.large,
         textStyle = TextStyle(brush = brush),
-        label = { Text("Your OpenAI Key") },
+        label = { Text(labelText) },
         keyboardActions = KeyboardActions(
             onDone = {
                 focusManager.clearFocus()

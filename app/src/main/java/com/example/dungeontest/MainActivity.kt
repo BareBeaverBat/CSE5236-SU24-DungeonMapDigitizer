@@ -117,19 +117,6 @@ fun MyScreen() {//todo discuss renaming this to something more informative like 
                     }
                 )
 
-                NavigationDrawerItem(
-                    label = { Text("Naming Test", style = MaterialTheme.typography.titleMedium) },
-                    selected = false,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            navController.navigate("NamingScreen/Something") {
-                                popUpTo("NamingScreen") { inclusive = false }
-                            }
-
-                        }
-                    }
-                )
             }
         },
     ) {
