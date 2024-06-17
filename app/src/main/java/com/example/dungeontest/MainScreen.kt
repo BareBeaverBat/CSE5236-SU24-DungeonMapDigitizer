@@ -134,7 +134,7 @@ fun MainScreen(
             ) {
 
                 items(maps.value ?: listOf()) { mapDetails ->
-                    MapDetails(mapDetails)
+                    SavedMapEntry(mapDetails, viewModel)
                 }
             }
         }
