@@ -10,8 +10,9 @@ class MapListViewModel(application: Application) : AndroidViewModel(application)
     //todo add method to get a map with given name if it already exists
     //todo add method to insert map
 
-    //todo add method to delete map
-
+    suspend fun deleteMap(map: MapRecord): Int {
+        return mapRepository.deleteMap(map)
+    }
 
     //todo add method to update map entry
 
