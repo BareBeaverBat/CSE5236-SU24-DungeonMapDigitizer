@@ -263,61 +263,69 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Mutabl
         ),
 
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .padding(16.dp)
-                .width(200.dp)
-                .height(120.dp)
                 .clickable {
                     selectedModel.value = id
                     keyboardController?.hide()
                     focusManager.clearFocus()
                 }
-        ) {
-            Column(
+
+
+        ){
+            Row(
                 modifier = Modifier
-                    .width(160.dp)
-
+                    .padding(16.dp)
+                    .width(200.dp)
+                    .height(120.dp)
             ) {
-
-                //Title
-                Text(
-                    color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
-                    text = title,
-                    style = MaterialTheme.typography.headlineMedium,
+                Column(
                     modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .wrapContentHeight()
-                        .fillMaxWidth()
-                )
+                        .width(160.dp)
 
-                //Description
-                Text(
-                    color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium,
+                ) {
+
+                    //Title
+                    Text(
+                        color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
+                        text = title,
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier
+                            .padding(bottom = 8.dp)
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                    )
+
+                    //Description
+                    Text(
+                        color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                    )
+
+
+                }
+                Column(
                     modifier = Modifier
-                        .wrapContentHeight()
-                        .fillMaxWidth()
-                )
-
-
+                        .padding(start = 10.dp, end = 10.dp)
+                        .align(Alignment.CenterVertically)
+                ) {
+                    RadioButton(
+                        colors = RadioButtonDefaults.colors(
+                            selectedColor = MaterialTheme.colorScheme.primary,
+                            unselectedColor = Color.Gray
+                        ),
+                        selected = selectedModel.value == id,
+                        onClick = null
+                    )
+                }
             }
-            Column(
-                modifier = Modifier
-                    .padding(start = 10.dp, end = 10.dp)
-                    .align(Alignment.CenterVertically)
-            ) {
-                RadioButton(
-                    colors = RadioButtonDefaults.colors(
-                        selectedColor = MaterialTheme.colorScheme.primary,
-                        unselectedColor = Color.Gray
-                    ),
-                    selected = selectedModel.value == id,
-                    onClick = null
-                )
-            }
+
         }
+
     }
 }
 
