@@ -146,7 +146,7 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                             ))
                         }
                         showDialog.value = false
-                        // Handle the save action here
+
                     }
                 ) {
                     Text("Confirm")
