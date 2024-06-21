@@ -143,7 +143,7 @@ fun MyScreen() {//todo discuss renaming this to something more informative like 
                 arguments = listOf(navArgument("PhotoUri") { type = NavType.StringType })
             ){ backStack ->
                 val photoUri = backStack.arguments?.getString("PhotoUri") ?: ""
-                NamingScreen(drawerState, scope, photoUri)
+                NamingScreen(drawerState, scope, photoUri, navController)
             }
         }
     }

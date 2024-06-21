@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,21 +32,30 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.dungeontest.model.MapListViewModel
+import com.example.dungeontest.model.MapRecord
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedPhotoUri: String) {
+fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedPhotoUri: String, navController: NavController) {
     val snackbarHostState = remember { SnackbarHostState() }
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
+    val viewModel = viewModel<MapListViewModel>()
 
     val photoUri = String(Base64.decode(base64EncodedPhotoUri, Base64.NO_WRAP), Charsets.UTF_8)
 
     val mapInputNameVal = remember {
         mutableStateOf(TextFieldValue())
+    }
+
+    val showDialog = remember {
+        mutableStateOf(false)
     }
 
     Log.v("NamingScreen", photoUri)
@@ -84,7 +94,23 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                 TextInputField(mapInputNameVal,"Map Name")
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
-                    onClick = { /* This is where you save things */},
+                    onClick = {
+                        Log.v("SaveButton", "button clicked")
+                        scope.launch {
+                            val mapName = mapInputNameVal.value.text
+                            val exists = viewModel.mapExists(mapName)
+                            if (exists) {
+                                showDialog.value = true
+                            } else {
+                                // Store this value in case we want to check if it actually saved or not
+                                val didSaveMap = viewModel.insertMap(MapRecord(
+                                    mapName,
+                                    photoUri
+                                ))
+                                navController.navigate("MainScreen")
+                            }
+                        }
+                      },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 10.dp, vertical = 10.dp)
@@ -93,5 +119,48 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                 }
             }
         }
+    }
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                showDialog.value = false
+            },
+            title = {
+                Text(text = "Map Already Exists!")
+            },
+            text = {
+                Column {
+                    Text("Confirming this will overwrite the old map.")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Would you like to continue?")
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        scope.launch {
+                            val mapName = mapInputNameVal.value.text
+                            viewModel.updateMap(MapRecord(
+                                mapName,
+                                photoUri
+                            ))
+                        }
+                        showDialog.value = false
+                        // Handle the save action here
+                    }
+                ) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        showDialog.value = false
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
