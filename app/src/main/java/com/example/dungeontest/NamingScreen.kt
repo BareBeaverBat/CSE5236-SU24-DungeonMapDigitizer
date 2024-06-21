@@ -146,7 +146,7 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                             ))
                         }
                         showDialog.value = false
-
+                        navController.navigate("MainScreen")
                     }
                 ) {
                     Text("Confirm")
