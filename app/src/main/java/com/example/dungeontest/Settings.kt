@@ -2,67 +2,81 @@ package com.example.dungeontest
 
 import android.content.res.Configuration
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.Column
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
-import kotlinx.coroutines.launch
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
-import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
-import kotlinx.coroutines.CoroutineScope
-import com.example.dungeontest.model.cardInfos
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.example.dungeontest.data.SettingsStorage
+import com.example.dungeontest.model.cardInfos
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
@@ -91,7 +105,7 @@ fun SettingsScreen(
         mutableStateOf(TextFieldValue())
     }
 
-    val selectedModel = remember { mutableIntStateOf(-1) }
+    val selectedModel = rememberSaveable { mutableIntStateOf(-1) }
     Log.d("SettingsScreen", "selectedModel initialized to -1: $selectedModel")
 
 
@@ -175,6 +189,7 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.width(2.dp))
                 ApiTokenInputField(tokenValue)
                 Spacer(modifier = Modifier.width(2.dp))
+
                 if (isLandscape) {
                     LazyRow(
                         horizontalArrangement = Arrangement.Center,
@@ -254,14 +269,18 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Mutabl
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
-    OutlinedCard(
+    AnimatedBorderCard(
+        modifier = Modifier
+            .width(320.dp)
+            .height(180.dp)
+            .fillMaxWidth(),
 
-        modifier = Modifier,
-        border = BorderStroke(
-            width = 2.dp,
-            color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray
-        ),
-
+        shape = RoundedCornerShape(12.dp),
+        borderWidth = if (selectedModel.value != id) 1.dp else 2.dp,
+        gradient =
+            if (selectedModel.value != id) Brush.linearGradient(listOf(Color.Gray, Color.Gray))
+            else Brush.linearGradient(listOf(Color.Magenta, Color.Cyan)),
+        onCardClick = {}
     ) {
         Column(
             modifier = Modifier
@@ -276,8 +295,8 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Mutabl
             Row(
                 modifier = Modifier
                     .padding(16.dp)
-                    .width(200.dp)
-                    .height(120.dp)
+                    .width(320.dp)
+                    .height(180.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -308,6 +327,7 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Mutabl
 
 
                 }
+                Spacer(modifier = Modifier.width(100.dp))
                 Column(
                     modifier = Modifier
                         .padding(start = 10.dp, end = 10.dp)
@@ -329,5 +349,54 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Mutabl
     }
 }
 
+@Composable
+fun AnimatedBorderCard(
+    modifier: Modifier = Modifier,
+    shape: Shape = RoundedCornerShape(size = 0.dp),
+    borderWidth: Dp = 2.dp,
+    gradient: Brush = Brush.sweepGradient(listOf(Color.Gray, Color.White)),
+    animationDuration: Int = 5000,
+    enabled: Boolean = true,
+    onCardClick: () -> Unit = {},
+    content: @Composable () -> Unit
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "Infinite Color Animation")
+    val degrees by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = animationDuration, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "Infinite Colors"
+    )
+
+    Surface(
+        modifier = modifier
+            .clip(shape)
+            .clickable { onCardClick() },
+        shape = shape
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(borderWidth)
+                .drawWithContent {
+                    rotate(degrees = degrees) {
+                        drawCircle(
+                            brush = gradient,
+                            radius = size.width,
+                            blendMode = BlendMode.SrcIn,
+                        )
+                    }
+                    drawContent()
+                },
+            color = MaterialTheme.colorScheme.surface,
+            shape = shape
+        ) {
+            content()
+        }
+    }
+}
 
 
