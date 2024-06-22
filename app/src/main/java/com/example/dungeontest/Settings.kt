@@ -42,13 +42,9 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
@@ -59,19 +55,22 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.CoroutineScope
 import com.example.dungeontest.model.cardInfos
 import com.example.dungeontest.data.SettingsStorage
+import com.example.dungeontest.model.SettingsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     drawerState: DrawerState,
     scope: CoroutineScope,
 ) {
+    val viewModel: SettingsViewModel = viewModel()
     // Remembering state
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -87,30 +86,10 @@ fun SettingsScreen(
     val preferences = SettingsStorage(context)
 
     // Value for the text field
-    val tokenValue = remember {
-        mutableStateOf(TextFieldValue())
-    }
-
-    val selectedModel = remember { mutableIntStateOf(-1) }
-    Log.d("SettingsScreen", "selectedModel initialized to -1: $selectedModel")
-
-
-    LaunchedEffect(key1 = preferences) {
-        launch {
-            preferences.getAccessToken.collect { token ->
-                tokenValue.value = TextFieldValue(token)
-                Log.d("SettingsScreen", "tokenValue updated from SettingsStorage: $tokenValue")
-            }
-        }
-
-        launch {
-            preferences.getSelectedModel.collect { model ->
-                selectedModel.intValue = model
-                Log.d("SettingsScreen", "selectedModel updated from SettingsStorage: $selectedModel")
-            }
-        }
-
-    }
+    val tokenValue = viewModel.getTokenValueInput()
+    Log.d("SettingsScreenTokenVal", "tokenValue: ${tokenValue.text}")
+    val selectedModel = viewModel.getSelectedModelInput()
+    Log.d("SettingsScreenSelectedModel", "selectedModel: $selectedModel")
 
     Scaffold(
         snackbarHost = {
@@ -134,15 +113,15 @@ fun SettingsScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = {
-                Log.d("SettingsScreen", "tokenValue onClick FAB: ${tokenValue.value.text}")
+                Log.d("SettingsScreen", "tokenValue onClick FAB: ${tokenValue.text}")
                 Log.d("SettingsScreen", "selectedModel onClick FAB: $selectedModel")
 
                 CoroutineScope(Dispatchers.IO).launch {
                     launch {
-                        preferences.saveToken(tokenValue.value.text)
+                        preferences.saveToken(tokenValue.text)
                     }
                     launch {
-                        preferences.saveSelectedModel(selectedModel.intValue)
+                        preferences.saveSelectedModel(selectedModel)
                     }
 
                     withContext(Dispatchers.Main) {
@@ -173,7 +152,7 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 Spacer(modifier = Modifier.width(2.dp))
-                TextInputField(tokenValue, "Your OpenAI Key")
+                TextInputFieldSettings(tokenValue, "Your OpenAI Key", viewModel)
                 Spacer(modifier = Modifier.width(2.dp))
                 if (isLandscape) {
                     LazyRow(
@@ -184,7 +163,7 @@ fun SettingsScreen(
 
                     ) {
                         items(cardInfos) { models ->
-                            ModelCard(models.id, models.title, models.description, selectedModel)
+                            ModelCard(models.id, models.title, models.description, selectedModel, viewModel)
                             Spacer(modifier = Modifier.width(20.dp))
                         }
                     }
@@ -195,7 +174,7 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(cardInfos) { models ->
-                            ModelCard(models.id, models.title, models.description, selectedModel)
+                            ModelCard(models.id, models.title, models.description, selectedModel, viewModel)
                         }
                     }
                 }
@@ -247,10 +226,53 @@ fun TextInputField(tokenValue: MutableState<TextFieldValue>, labelText: String) 
 
     )
 }
-
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ModelCard(id: Int, title: String, description: String, selectedModel: MutableState<Int>) {
+fun TextInputFieldSettings(tokenValue: TextFieldValue, labelText: String, viewModel: SettingsViewModel) {
+    val maxLength = 40
+    val aiEsqueColors = listOf(
+        Color(0xFF607D8B),
+        Color(0xFF3F51B5),
+        Color(0xFF2196F3),
+        Color(0xFF03A9F4),
+        Color(0xFF00BCD4),
+        Color(0xFF009688),
+        Color(0xFF4CAF50),
+        Color(0xFF8BC34A)
+    )
+    val brush = remember {
+        Brush.linearGradient(
+            colors = aiEsqueColors
+        )
+    }
+    val textField = FocusRequester()
+    val focusManager = LocalFocusManager.current
+    val textFieldWidth = (maxLength * 8).dp
+    OutlinedTextField(
+        value = tokenValue,
+        onValueChange = {
+            viewModel.setTokenValueInput(it)
+        },
+
+        modifier = Modifier
+            .focusRequester(textField)
+            .width(textFieldWidth),
+        singleLine = true,
+        shape = MaterialTheme.shapes.large,
+        textStyle = TextStyle(brush = brush),
+        label = { Text(labelText) },
+        keyboardActions = KeyboardActions(
+            onDone = {
+                focusManager.clearFocus()
+            }
+        ),
+
+        )
+}
+
+
+
+@Composable
+fun ModelCard(id: Int, title: String, description: String, selectedModel: Int, viewModel: SettingsViewModel) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
@@ -259,14 +281,14 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Mutabl
         modifier = Modifier,
         border = BorderStroke(
             width = 2.dp,
-            color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray
+            color = if (selectedModel == id) MaterialTheme.colorScheme.primary else Color.Gray
         ),
 
     ) {
         Column(
             modifier = Modifier
                 .clickable {
-                    selectedModel.value = id
+                    viewModel.setSelectedModelInput(id)
                     keyboardController?.hide()
                     focusManager.clearFocus()
                 }
@@ -287,7 +309,7 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Mutabl
 
                     //Title
                     Text(
-                        color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
+                        color = if (selectedModel == id) MaterialTheme.colorScheme.primary else Color.Gray,
                         text = title,
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier
@@ -298,7 +320,7 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Mutabl
 
                     //Description
                     Text(
-                        color = if (selectedModel.value == id) MaterialTheme.colorScheme.primary else Color.Gray,
+                        color = if (selectedModel == id) MaterialTheme.colorScheme.primary else Color.Gray,
                         text = description,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
@@ -318,7 +340,7 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Mutabl
                             selectedColor = MaterialTheme.colorScheme.primary,
                             unselectedColor = Color.Gray
                         ),
-                        selected = selectedModel.value == id,
+                        selected = selectedModel == id,
                         onClick = null
                     )
                 }
