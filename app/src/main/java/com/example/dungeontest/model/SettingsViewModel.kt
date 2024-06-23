@@ -33,7 +33,6 @@ class SettingsViewModel( application: Application): AndroidViewModel(application
                 _selectedModel = model
             }
         }
-
     }
 
     fun saveToken(token: String) {
