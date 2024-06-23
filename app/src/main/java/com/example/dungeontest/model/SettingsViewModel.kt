@@ -12,22 +12,25 @@ import kotlinx.coroutines.launch
 
 class SettingsViewModel( application: Application): AndroidViewModel(application) {
     private val settingsStorage = SettingsStorage(application)
-    private val _tokenValue = mutableStateOf(TextFieldValue())
-    val tokenValue: State<TextFieldValue> = _tokenValue
 
-    private val _selectedModel = mutableIntStateOf(0)
-    val selectedModel: State<Int> = _selectedModel
+    private var _tokenValue = ""
+    val tokenValue: String
+        get() = _tokenValue
+
+    private var _selectedModel = 0
+    val selectedModel: Int
+        get() = _selectedModel
 
     init {
         viewModelScope.launch {
             settingsStorage.getAccessToken.collect { token ->
-                _tokenValue.value = TextFieldValue(token)
+                _tokenValue = token
             }
         }
 
         viewModelScope.launch {
             settingsStorage.getSelectedModel.collect { model ->
-                _selectedModel.intValue = model
+                _selectedModel = model
             }
         }
 

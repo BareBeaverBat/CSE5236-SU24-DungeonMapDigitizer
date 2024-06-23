@@ -97,8 +97,8 @@ fun SettingsScreen(
     val focusManager = LocalFocusManager.current
 
     // Value for the text field from persistent state(preferences datastore)
-    var tokenValue = viewModel.tokenValue.value.text
-    var selectedModel = viewModel.selectedModel.value
+    var tokenValue = viewModel.tokenValue
+    var selectedModel = viewModel.selectedModel
 
     // Value for the text field from user input before hitting save
     val tokenValueInput = rememberSaveable { mutableStateOf<String?>(null) }
