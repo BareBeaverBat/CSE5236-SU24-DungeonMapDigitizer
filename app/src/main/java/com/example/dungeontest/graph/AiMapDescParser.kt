@@ -6,8 +6,8 @@ import org.jgrapht.graph.DefaultEdge
 /**
  * converts json from AI model to a JGraphT object
  */
-interface AiResponseParser {
+interface AiMapDescParser {
 
-    public fun parseAiResp(aiOutputJson: String): Graph<String, DefaultEdge>;
+    public fun parseAiMapDesc(aiOutputJson: String): Graph<MapRoom, DefaultEdge>;
 
 }
