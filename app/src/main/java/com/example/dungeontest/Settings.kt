@@ -96,10 +96,6 @@ fun SettingsScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
-    // Context and preferences datastore
-    val context = LocalContext.current
-    val preferences = SettingsStorage(context)
-
     // Value for the text field from persistent state(preferences datastore)
     var tokenValue = viewModel.tokenValue.value.text
     var selectedModel = viewModel.selectedModel.value
@@ -137,8 +133,8 @@ fun SettingsScreen(
                 viewModel.saveToken(tokenValue)
             }
 
-            if (selectedModelInput.value != -1) {
-                selectedModel = selectedModelInput.value
+            if (selectedModelInput.intValue != -1) {
+                selectedModel = selectedModelInput.intValue
                 viewModel.saveSelectedModel(selectedModel)
             }
 
@@ -252,7 +248,7 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Int, s
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val referencedSelection =
-        if (selectedModelInput.value != -1) selectedModelInput.value
+        if (selectedModelInput.intValue != -1) selectedModelInput.intValue
         else  selectedModel
 
     val txtColor =
@@ -279,7 +275,7 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Int, s
         Column(
             modifier = Modifier
                 .clickable {
-                    selectedModelInput.value = id
+                    selectedModelInput.intValue = id
                     keyboardController?.hide()
                     focusManager.clearFocus()
                 }
@@ -334,7 +330,7 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Int, s
                             unselectedColor = Color.Gray
                         ),
                         selected =
-                            if (selectedModelInput.value != -1) //value is initialized but no user input
+                            if (selectedModelInput.intValue != -1) //value is initialized but no user input
                                 selectedModelInput.value == id
                             else
                                 selectedModel == id,
@@ -355,7 +351,6 @@ fun AnimatedBorderCard(
     borderWidth: Dp = 2.dp,
     gradient: Brush = Brush.sweepGradient(listOf(Color.Gray, Color.White)),
     animationDuration: Int = 5000,
-    enabled: Boolean = true,
     onCardClick: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
