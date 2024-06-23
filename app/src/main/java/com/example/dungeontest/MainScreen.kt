@@ -37,7 +37,7 @@ import android.Manifest
 import android.util.Log
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.livedata.observeAsState
-
+import com.example.dungeontest.data.SettingsStorage
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
@@ -47,6 +47,9 @@ import kotlinx.coroutines.launch
 
 import java.io.File
 import android.util.Base64
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.navigation.NavController
 
 
@@ -59,6 +62,7 @@ fun MainScreen(
     navController: NavController
 ) {
     val context = LocalContext.current
+    val preferences = SettingsStorage(context)
     val viewModel = viewModel<MapListViewModel>()
     val maps = viewModel.allMaps.observeAsState()
     var photoUri by remember { mutableStateOf<Uri?>(null) }
@@ -84,8 +88,22 @@ fun MainScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            photoUri = createImageFileUri(context)
-            cameraLauncher.launch(photoUri!!)
+            scope.launch {
+                preferences.getAccessToken.collect { token ->
+                    if (token.isEmpty()) {
+                        if (snackbarHostState.currentSnackbarData == null)
+                                snackbarHostState.showSnackbar(
+                                    "API Key is required to proceed.",
+                                    duration = SnackbarDuration.Short
+                                )
+                    } else {
+                        photoUri = createImageFileUri(context)
+                        cameraLauncher.launch(photoUri!!)
+                    }
+                }
+            }
+
+
         } else {
             scope.launch {
                 // Show a snackbar message. Ideally shouldn't overlap
