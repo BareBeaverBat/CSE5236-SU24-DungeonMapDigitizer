@@ -16,6 +16,7 @@ lifecycleViewmodelCompose="2.7.0"
 material3Android = "1.2.1"
 moshi = "1.14.0"
 navigationCompose = "2.7.7"
+robolectric = "4.12.2"
 roomRuntime = "2.6.1"
 lifecycleLivedataKtx = "2.8.1"
 junitJupiter = "5.8.1"
@@ -51,6 +52,7 @@ moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
 moshi-adapters = { module = "com.squareup.moshi:moshi-adapters", version.ref = "moshi" }
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

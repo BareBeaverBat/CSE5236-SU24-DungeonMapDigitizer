@@ -3,22 +3,16 @@ package com.example.dungeontest.graph
 import android.util.Log
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonDataException
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.jgrapht.Graph
 import org.jgrapht.graph.DefaultEdge
 import org.jgrapht.graph.DefaultUndirectedGraph
-import java.lang.reflect.Type
 
 class OpenAiMapDescParser : AiMapDescParser {
-    private val tag = OpenAiMapDescParser::class.java.simpleName
+    private val tag = javaClass.simpleName
 
     override fun parseAiMapDesc(aiOutputJson: String): Graph<MapRoom, DefaultEdge> {
-        val moshi = Moshi.Builder().add(AiRespRoomAdapter()).add(KotlinJsonAdapterFactory()).build()
 
-        val type: Type = Types.newParameterizedType(List::class.java, AiRespRoom::class.java)
-        val adapter: JsonAdapter<List<AiRespRoom>> = moshi.adapter(type)
+        val adapter: JsonAdapter<List<AiRespRoom>> = AiRespRoomAdapter()
         var parsedResponse: List<AiRespRoom>? = null
         var roomDescriptions: List<AiRespRoom> = listOf()
 
