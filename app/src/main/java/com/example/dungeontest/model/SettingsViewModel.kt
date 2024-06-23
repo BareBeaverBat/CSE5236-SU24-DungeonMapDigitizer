@@ -33,13 +33,6 @@ class SettingsViewModel( application: Application): AndroidViewModel(application
 
     }
 
-    fun saveSettings(token: String, modelId: Int) {
-        viewModelScope.launch {
-            settingsStorage.saveToken(token)
-            settingsStorage.saveSelectedModel(modelId)
-        }
-    }
-
     fun saveToken(token: String) {
         viewModelScope.launch {
             settingsStorage.saveToken(token)
