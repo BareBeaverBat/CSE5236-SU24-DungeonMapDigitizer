@@ -176,7 +176,7 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
 }
 
 @Composable
-fun TextInputField(tokenValue: MutableState<TextFieldValue>, labelText: String) {
+private fun TextInputField(tokenValue: MutableState<TextFieldValue>, labelText: String) {
     val maxLength = 40
     val aiEsqueColors = listOf(
         Color(0xFF607D8B),

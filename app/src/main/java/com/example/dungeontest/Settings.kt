@@ -198,7 +198,7 @@ fun SettingsScreen(
 }
 
 @Composable
-fun TextInputField(tokenValueState: String, tokenValueInput: MutableState<String?>, labelText: String) {
+private fun TextInputField(tokenValueState: String, tokenValueInput: MutableState<String?>, labelText: String) {
     val maxLength = 40
     val aiEsqueColors = listOf(
         Color(0xFF607D8B),
