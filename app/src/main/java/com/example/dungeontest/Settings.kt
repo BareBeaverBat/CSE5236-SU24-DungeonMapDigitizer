@@ -42,8 +42,15 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.SaverScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -85,11 +92,15 @@ fun SettingsScreen(
     val context = LocalContext.current
     val preferences = SettingsStorage(context)
 
-    // Value for the text field
-    val tokenValue = viewModel.getTokenValueInput()
-    Log.d("SettingsScreenTokenVal", "tokenValue: ${tokenValue.text}")
-    val selectedModel = viewModel.getSelectedModelInput()
-    Log.d("SettingsScreenSelectedModel", "selectedModel: $selectedModel")
+    // Value for the text field from state
+    var tokenValue = viewModel.tokenValue.value.text
+    var selectedModel = viewModel.selectedModel.value
+
+    // Value for the text field from user input
+    val tokenValueInput = rememberSaveable { mutableStateOf<String?>(null) }
+
+    val selectedModelInput = rememberSaveable { mutableIntStateOf(-1) }
+
 
     Scaffold(
         snackbarHost = {
@@ -113,23 +124,24 @@ fun SettingsScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = {
-                Log.d("SettingsScreen", "tokenValue onClick FAB: ${tokenValue.text}")
-                Log.d("SettingsScreen", "selectedModel onClick FAB: $selectedModel")
 
-                CoroutineScope(Dispatchers.IO).launch {
-                    launch {
-                        preferences.saveToken(tokenValue.text)
-                    }
-                    launch {
-                        preferences.saveSelectedModel(selectedModel)
-                    }
+            if (tokenValueInput.value != null) {
+                tokenValue = tokenValueInput.value!!
+                viewModel.saveToken(tokenValue)
+            }
 
-                    withContext(Dispatchers.Main) {
-                        if (snackbarHostState.currentSnackbarData == null) {
-                            snackbarHostState.showSnackbar("Data saved successfully")
-                        }
+            if (selectedModelInput.value != -1) {
+                selectedModel = selectedModelInput.value
+                viewModel.saveSelectedModel(selectedModel)
+            }
+
+            scope.launch {
+                withContext(Dispatchers.Main) {
+                    if (snackbarHostState.currentSnackbarData == null) {
+                        snackbarHostState.showSnackbar("Data saved successfully")
                     }
                 }
+            }
 
             }) {
 
@@ -152,7 +164,7 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 Spacer(modifier = Modifier.width(2.dp))
-                TextInputFieldSettings(tokenValue, "Your OpenAI Key", viewModel)
+                TextInputField(tokenValue, tokenValueInput, "Your OpenAI Key")
                 Spacer(modifier = Modifier.width(2.dp))
                 if (isLandscape) {
                     LazyRow(
@@ -163,7 +175,7 @@ fun SettingsScreen(
 
                     ) {
                         items(cardInfos) { models ->
-                            ModelCard(models.id, models.title, models.description, selectedModel, viewModel)
+                            ModelCard(models.id, models.title, models.description, selectedModel, selectedModelInput)
                             Spacer(modifier = Modifier.width(20.dp))
                         }
                     }
@@ -174,7 +186,7 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(cardInfos) { models ->
-                            ModelCard(models.id, models.title, models.description, selectedModel, viewModel)
+                            ModelCard(models.id, models.title, models.description, selectedModel, selectedModelInput)
                         }
                     }
                 }
@@ -185,7 +197,7 @@ fun SettingsScreen(
 }
 
 @Composable
-fun TextInputField(tokenValue: MutableState<TextFieldValue>, labelText: String) {
+fun TextInputField(tokenValueState: String, tokenValueInput: MutableState<String?>, labelText: String) {
     val maxLength = 40
     val aiEsqueColors = listOf(
         Color(0xFF607D8B),
@@ -206,9 +218,9 @@ fun TextInputField(tokenValue: MutableState<TextFieldValue>, labelText: String) 
     val focusManager = LocalFocusManager.current
     val textFieldWidth = (maxLength * 8).dp
     OutlinedTextField(
-        value = tokenValue.value,
-        onValueChange = {
-            tokenValue.value = it
+        value = tokenValueInput.value?.let { it } ?: tokenValueState,
+        onValueChange = {newValue ->
+            tokenValueInput.value = newValue
         },
 
         modifier = Modifier
@@ -226,69 +238,33 @@ fun TextInputField(tokenValue: MutableState<TextFieldValue>, labelText: String) 
 
     )
 }
-@Composable
-fun TextInputFieldSettings(tokenValue: TextFieldValue, labelText: String, viewModel: SettingsViewModel) {
-    val maxLength = 40
-    val aiEsqueColors = listOf(
-        Color(0xFF607D8B),
-        Color(0xFF3F51B5),
-        Color(0xFF2196F3),
-        Color(0xFF03A9F4),
-        Color(0xFF00BCD4),
-        Color(0xFF009688),
-        Color(0xFF4CAF50),
-        Color(0xFF8BC34A)
-    )
-    val brush = remember {
-        Brush.linearGradient(
-            colors = aiEsqueColors
-        )
-    }
-    val textField = FocusRequester()
-    val focusManager = LocalFocusManager.current
-    val textFieldWidth = (maxLength * 8).dp
-    OutlinedTextField(
-        value = tokenValue,
-        onValueChange = {
-            viewModel.setTokenValueInput(it)
-        },
-
-        modifier = Modifier
-            .focusRequester(textField)
-            .width(textFieldWidth),
-        singleLine = true,
-        shape = MaterialTheme.shapes.large,
-        textStyle = TextStyle(brush = brush),
-        label = { Text(labelText) },
-        keyboardActions = KeyboardActions(
-            onDone = {
-                focusManager.clearFocus()
-            }
-        ),
-
-        )
-}
-
 
 
 @Composable
-fun ModelCard(id: Int, title: String, description: String, selectedModel: Int, viewModel: SettingsViewModel) {
+fun ModelCard(id: Int, title: String, description: String, selectedModel: Int, selectedModelInput: MutableIntState) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
+    val outlineColor =
+        if (selectedModelInput.value != -1) //value is initialized but no user input
+            if (selectedModelInput.value == id) MaterialTheme.colorScheme.primary
+            else Color.Gray
+        else
+            if (selectedModel == id) MaterialTheme.colorScheme.primary
+            else Color.Gray
 
     OutlinedCard(
 
         modifier = Modifier,
         border = BorderStroke(
             width = 2.dp,
-            color = if (selectedModel == id) MaterialTheme.colorScheme.primary else Color.Gray
+            color = outlineColor
         ),
 
     ) {
         Column(
             modifier = Modifier
                 .clickable {
-                    viewModel.setSelectedModelInput(id)
+                    selectedModelInput.value = id
                     keyboardController?.hide()
                     focusManager.clearFocus()
                 }
@@ -309,7 +285,8 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Int, v
 
                     //Title
                     Text(
-                        color = if (selectedModel == id) MaterialTheme.colorScheme.primary else Color.Gray,
+                        color = outlineColor,
+
                         text = title,
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier
@@ -320,7 +297,7 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Int, v
 
                     //Description
                     Text(
-                        color = if (selectedModel == id) MaterialTheme.colorScheme.primary else Color.Gray,
+                        color = outlineColor,
                         text = description,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
@@ -340,7 +317,11 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Int, v
                             selectedColor = MaterialTheme.colorScheme.primary,
                             unselectedColor = Color.Gray
                         ),
-                        selected = selectedModel == id,
+                        selected =
+                            if (selectedModelInput.value != -1) //value is initialized but no user input
+                                selectedModelInput.value == id
+                            else
+                                selectedModel == id,
                         onClick = null
                     )
                 }
