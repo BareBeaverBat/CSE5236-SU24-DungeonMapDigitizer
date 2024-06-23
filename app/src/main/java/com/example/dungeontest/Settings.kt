@@ -63,14 +63,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.dungeontest.data.SettingsStorage
 import com.example.dungeontest.model.SettingsViewModel
 import com.example.dungeontest.model.cardInfos
 import kotlinx.coroutines.CoroutineScope
@@ -331,7 +329,7 @@ fun ModelCard(id: Int, title: String, description: String, selectedModel: Int, s
                         ),
                         selected =
                             if (selectedModelInput.intValue != -1) //value is initialized but no user input
-                                selectedModelInput.value == id
+                                selectedModelInput.intValue == id
                             else
                                 selectedModel == id,
                         onClick = null
