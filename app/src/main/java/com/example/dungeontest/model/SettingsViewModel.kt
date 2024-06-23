@@ -27,7 +27,7 @@ class SettingsViewModel( application: Application): AndroidViewModel(application
 
         viewModelScope.launch {
             settingsStorage.getSelectedModel.collect { model ->
-                _selectedModel.value = model
+                _selectedModel.intValue = model
             }
         }
 
