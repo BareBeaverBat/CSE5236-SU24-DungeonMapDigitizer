@@ -221,7 +221,7 @@ fun TextInputField(tokenValueState: String, tokenValueInput: MutableState<String
     val focusManager = LocalFocusManager.current
     val textFieldWidth = (maxLength * 8).dp
     OutlinedTextField(
-        value = tokenValueInput.value?.let { it } ?: tokenValueState,
+        value = tokenValueInput.value ?: tokenValueState,
         onValueChange = {newValue ->
             tokenValueInput.value = newValue
         },
