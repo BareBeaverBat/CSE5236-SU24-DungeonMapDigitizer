@@ -42,7 +42,6 @@ class OpenAiMapDescParser : AiMapDescParser {
         }
 
         return mapGraph
-        //todo add unit test class for this and try a few things (e.g. GPT-4o response)
     }
 
 
