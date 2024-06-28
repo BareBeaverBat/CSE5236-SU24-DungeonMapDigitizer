@@ -14,19 +14,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -115,9 +115,10 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                                 // Store this value in case we want to check if it actually saved or not
                                 val didSaveMap = viewModel.insertMap(MapRecord(
                                     mapName,
-                                    photoUri
+                                    photoUri,
+                                    null
                                 ))
-                                navController.navigate("MainScreen")
+                                navController.navigate("EditorScreen")
                             }
                         }
                       },
@@ -152,7 +153,8 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                             val mapName = mapInputNameVal.value.text
                             viewModel.updateMap(MapRecord(
                                 mapName,
-                                photoUri
+                                photoUri,
+                                null
                             ))
                         }
                         showDialog.value = false

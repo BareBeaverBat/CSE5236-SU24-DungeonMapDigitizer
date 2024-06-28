@@ -35,18 +35,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.dungeontest.model.MapListViewModel
-import com.example.dungeontest.ui.theme.DungeonTestTheme
-import kotlinx.coroutines.launch
 import androidx.navigation.navArgument
-import androidx.navigation.NavType
-
+import com.example.dungeontest.model.MapListViewModel
 import com.example.dungeontest.model.MapRecord
+import com.example.dungeontest.ui.theme.DungeonTestTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private val TAG = "MainActivity"
@@ -144,6 +143,9 @@ fun MyScreen() {//todo discuss renaming this to something more informative like 
             ){ backStack ->
                 val photoUri = backStack.arguments?.getString("PhotoUri") ?: ""
                 NamingScreen(drawerState, scope, photoUri, navController)
+            }
+            composable("EditorScreen") {
+                EditorScreen(drawerState, scope, navController)
             }
         }
     }

@@ -90,10 +90,13 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.jgrapht.core)
+    implementation(libs.jgrapht.io)
+    implementation(libs.moshi.kotlin)
     implementation(libs.moshi)
     implementation(libs.moshi.adapters)
     implementation(libs.moshi.kotlin)
-
+    implementation(libs.graph.support)
+    implementation(libs.okhttp3)
 
     // To use Kotlin annotation processing tool (kapt)
     kapt(libs.androidx.room.compiler)
