@@ -44,7 +44,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dungeontest.data.SettingsStorage
-import com.example.dungeontest.model.MapListViewModel
+import com.example.dungeontest.model.MapViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -60,7 +60,7 @@ fun MainScreen(
 ) {
     val context = LocalContext.current
     val preferences = SettingsStorage(context)
-    val viewModel = viewModel<MapListViewModel>()
+    val viewModel = viewModel<MapViewModel>()
     val maps = viewModel.allMaps.observeAsState()
     var photoUri by remember { mutableStateOf<Uri?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }

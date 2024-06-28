@@ -40,7 +40,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.dungeontest.model.MapListViewModel
+import com.example.dungeontest.model.MapViewModel
 import com.example.dungeontest.model.MapRecord
 import com.example.dungeontest.ui.theme.DungeonTestTheme
 import kotlinx.coroutines.CoroutineScope
@@ -194,7 +194,7 @@ fun MapDetailsCard(item: MapRecord, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SavedMapEntry(mapDetails: MapRecord, viewModel: MapListViewModel, modifier: Modifier = Modifier) {
+fun SavedMapEntry(mapDetails: MapRecord, viewModel: MapViewModel, modifier: Modifier = Modifier) {
     Row(modifier = modifier) {
         MapDetailsCard(item = mapDetails, Modifier.weight(0.9f))
         IconButton(onClick = {
