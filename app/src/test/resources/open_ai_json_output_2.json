@@ -1,13 +1,94 @@
-[
-  {"id": 1, "label": "Entrance", "neighbors": [2, 3, 7]},
-  {"id": 2, "label": "Room of Murals", "neighbors": [1]},
-  {"id": 3, "label": "Chamber with just bones and shattered pottery", "neighbors": [1, 4]},
-  {"id": 4, "label": "Goblin Pen", "neighbors": [3, 5, 6, 7]},
-  {"id": 5, "label": "Goblin Valuables", "neighbors": [4]},
-  {"id": 6, "label": "Goblin Pantry", "neighbors": [4, 15]},
-  {"id": 7, "label": "Giant Insects (feeding on fungal growths)", "neighbors": [1, 4, 8]},
-  {"id": 8, "label": "Insect Queen!", "neighbors": [7, 9, 11]},
-  {"id": 9, "label": "Insect Larder", "neighbors": [8]},
-  {"id": 10, "label": "Pupation Chamber", "neighbors": [11]},
-  {"id": 11, "label": "Insect Nursery", "neighbors": [10]}
-]
+{
+  "rooms": "some list of rooms in raw text (including this to accommodate uncertainty about how LLM will render its intermediate analysis, same with value for 'adjacency_analysis' on next line)",
+  "adjacency_analysis": "some analysis in raw text",
+  "final_result": [
+    {
+      "id": 1,
+      "label": "Entrance",
+      "neighbors": [
+        2,
+        3,
+        7
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Room of Murals",
+      "neighbors": [
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "label": "Chamber with just bones and shattered pottery",
+      "neighbors": [
+        1,
+        4
+      ]
+    },
+    {
+      "id": 4,
+      "label": "Goblin Pen",
+      "neighbors": [
+        3,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "id": 5,
+      "label": "Goblin Valuables",
+      "neighbors": [
+        4
+      ]
+    },
+    {
+      "id": 6,
+      "label": "Goblin Pantry",
+      "neighbors": [
+        4,
+        15
+      ]
+    },
+    {
+      "id": 7,
+      "label": "Giant Insects (feeding on fungal growths)",
+      "neighbors": [
+        1,
+        4,
+        8
+      ]
+    },
+    {
+      "id": 8,
+      "label": "Insect Queen!",
+      "neighbors": [
+        7,
+        9,
+        11
+      ]
+    },
+    {
+      "id": 9,
+      "label": "Insect Larder",
+      "neighbors": [
+        8
+      ]
+    },
+    {
+      "id": 10,
+      "label": "Pupation Chamber",
+      "neighbors": [
+        11
+      ]
+    },
+    {
+      "id": 11,
+      "label": "Insect Nursery",
+      "neighbors": [
+        10
+      ]
+    }
+  ]
+}
