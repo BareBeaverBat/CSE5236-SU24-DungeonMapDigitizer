@@ -3,6 +3,7 @@ package com.example.dungeontest.graphs
 import com.example.dungeontest.graph.MapRoom
 import org.junit.Test
 import com.example.dungeontest.graph.AiMapDescParserImpl
+import com.example.dungeontest.graph.OpenAiRespRoomAdapter
 import com.example.dungeontest.readJsonFromResources
 
 import org.junit.Assert.*
@@ -22,9 +23,8 @@ class AiMapDescParserImplTest {
 
     @Test
     fun givenSchemaCompliantJson_whenReadGraphSpecWithoutInconsistencies_thenProduceFullGraph() {
-        //todo update example json based on new perspective
         val aiOutputJson = readJsonFromResources("open_ai_json_output_1.json")
-        val graph = AiMapDescParserImpl().parseAiMapDesc(aiOutputJson)
+        val graph = AiMapDescParserImpl().parseAiMapDesc(aiOutputJson, OpenAiRespRoomAdapter())
 
         assertEquals(expectedRoomNames.toSet(), graph.vertexSet().map { it.label }.toSet())
         assertEquals(11, graph.edgeSet().size)
@@ -43,9 +43,8 @@ class AiMapDescParserImplTest {
 
     @Test
     fun givenSchemaCompliantJson_whenReadInconsistentGraphSpec_thenProduceGraphWithInconsistenciesRemoved() {
-        //todo update example json based on new perspective
         val aiOutputJson = readJsonFromResources("open_ai_json_output_2.json")
-        val graph = AiMapDescParserImpl().parseAiMapDesc(aiOutputJson)
+        val graph = AiMapDescParserImpl().parseAiMapDesc(aiOutputJson, OpenAiRespRoomAdapter())
 
         assertEquals(expectedRoomNames.toSet(), graph.vertexSet().map { it.label }.toSet())
         assertEquals(10, graph.edgeSet().size)
