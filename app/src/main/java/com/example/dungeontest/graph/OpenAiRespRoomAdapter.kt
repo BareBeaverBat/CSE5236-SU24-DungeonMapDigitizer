@@ -25,12 +25,29 @@ class OpenAiRespRoomAdapter : AiRespJsonIngester() {
         }
         reader.beginObject()
 
-        
+        val firstKey = reader.nextName()
+        if (firstKey != "rooms") {
+            throw JsonDataException("open ai response failed to include 'rooms' segment at start of json object (for preliminary Chain-of-Thought-style analysis)")
+        }
+        reader.skipValue()//ignore the CoT-style listing of the rooms
 
-        //todo consume key "rooms" (error if actual key is not that expected string) and skip its value
-        //todo consume key "adjacency_analysis" (error if actual key is not that expected string) and skip its value
+        val secondKey = reader.nextName()
+        if (secondKey != "adjacency_analysis") {
+            throw JsonDataException("open ai response failed to include 'adjacency_analysis' segment in the middle json object (for Chain-of-Thought-style analysis)")
+        }
+        reader.skipValue()//ignore the CoT-style analysis of the adjacency relationships of the rooms
 
-        //todo consume key "final_result"
+
+        val thirdKey = reader.nextName()
+        if (thirdKey != "final_result") {
+            throw JsonDataException("open ai response's json object failed to have 'final_result' as its last key")
+        }
+
+        val firstTokenOfLastValue = reader.peek()
+        if (firstTokenOfLastValue != JsonReader.Token.BEGIN_ARRAY) {
+            throw JsonDataException("open ai response's json object failed to have a json array as the value for the 'final_result' key; it instead had ${reader.readJsonValue()}")
+        }
+
         reader.beginArray()
         while (reader.hasNext()) {
             val nextTokenType = reader.peek()
@@ -41,6 +58,11 @@ class OpenAiRespRoomAdapter : AiRespJsonIngester() {
             }
         }
         reader.endArray()
+
+        val lastToken = reader.peek()
+        if (lastToken != JsonReader.Token.END_OBJECT) {
+            throw JsonDataException("open ai response's json object had extra junk after the value of the 'final_result' key: ${reader.readJsonValue()}")
+        }
 
         reader.endObject()
         return aiRoomDescriptions
