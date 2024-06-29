@@ -7,17 +7,16 @@ import org.jgrapht.Graph
 import org.jgrapht.graph.DefaultEdge
 import org.jgrapht.graph.DefaultUndirectedGraph
 
-class OpenAiMapDescParser : AiMapDescParser {
+class AiMapDescParserImpl : AiMapDescParser {
     private val tag = javaClass.simpleName
 
-    override fun parseAiMapDesc(aiOutputJson: String): Graph<MapRoom, DefaultEdge> {
+    override fun parseAiMapDesc(aiOutputJson: String, jsonIngester: JsonAdapter<List<AiRespRoom>>): Graph<MapRoom, DefaultEdge> {
 
-        val adapter: JsonAdapter<List<AiRespRoom>> = AiRespRoomAdapter()
         var parsedResponse: List<AiRespRoom>? = null
         var roomDescriptions: List<AiRespRoom> = listOf()
 
         try {
-            parsedResponse = adapter.fromJson(aiOutputJson)
+            parsedResponse = jsonIngester.fromJson(aiOutputJson)
         } catch (e: Throwable) {
             throw JsonDataException(
                 "exception when parsing OpenAI response as a list of room objects",

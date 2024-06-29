@@ -1,5 +1,6 @@
 package com.example.dungeontest.graph
 
+import com.squareup.moshi.JsonAdapter
 import org.jgrapht.Graph
 import org.jgrapht.graph.DefaultEdge
 
@@ -8,6 +9,9 @@ import org.jgrapht.graph.DefaultEdge
  */
 interface AiMapDescParser {
 
-    public fun parseAiMapDesc(aiOutputJson: String): Graph<MapRoom, DefaultEdge>;
+    /**
+     * todo explain
+     */
+    fun parseAiMapDesc(aiOutputJson: String, jsonIngester: JsonAdapter<List<AiRespRoom>>): Graph<MapRoom, DefaultEdge>;
 
 }
