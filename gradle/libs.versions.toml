@@ -2,7 +2,6 @@
 agp = "8.4.0"
 datastorePreferences = "1.1.1"
 jgraphtCore = "1.5.2"
-jgraphtIo = "1.5.2"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -34,7 +33,7 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRunt
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata" }
 jgrapht-core = { module = "org.jgrapht:jgrapht-core", version.ref = "jgraphtCore" }
-jgrapht-io = { module = "org.jgrapht:jgrapht-io", version.ref = "jgraphtIo" }
+jgrapht-io = { module = "org.jgrapht:jgrapht-io", version.ref = "jgraphtCore" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
