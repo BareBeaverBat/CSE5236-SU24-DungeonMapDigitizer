@@ -134,7 +134,6 @@ fun MainScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-            /* TODO: Implement FAB action */
                 permissionLauncher.launch(Manifest.permission.CAMERA)
             }) {
                 Icon(Icons.Filled.Add, contentDescription = "Floating action button.")

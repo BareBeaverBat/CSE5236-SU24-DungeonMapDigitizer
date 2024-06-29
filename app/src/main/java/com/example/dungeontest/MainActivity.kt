@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DungeonTestTheme {
-                MyScreen()
+                RootScreen()
             }
         }
         Log.v(TAG, "onCreate() finished")
@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyScreen() {//todo discuss renaming this to something more informative like RootScreen or BaseScreen
+fun RootScreen() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
@@ -153,7 +153,7 @@ fun MyScreen() {//todo discuss renaming this to something more informative like 
 @Composable
 fun DefaultPreview() {
     DungeonTestTheme {
-        MyScreen()
+        RootScreen()
 
     }
 }
