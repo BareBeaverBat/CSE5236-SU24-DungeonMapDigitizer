@@ -2,7 +2,7 @@ package com.example.dungeontest.graphs
 
 import com.example.dungeontest.graph.MapRoom
 import org.junit.Test
-import com.example.dungeontest.graph.OpenAiMapDescParser
+import com.example.dungeontest.graph.AiMapDescParserImpl
 import com.example.dungeontest.readJsonFromResources
 
 import org.junit.Assert.*
@@ -10,7 +10,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class OpenAiMapDescParserTest {
+class AiMapDescParserImplTest {
     val expectedRoomNames = listOf(
         "Entrance", "Room of Murals", "Chamber with just bones and shattered pottery",
         "Goblin Pen", "Goblin Valuables", "Goblin Pantry",
@@ -22,8 +22,9 @@ class OpenAiMapDescParserTest {
 
     @Test
     fun givenSchemaCompliantJson_whenReadGraphSpecWithoutInconsistencies_thenProduceFullGraph() {
+        //todo update example json based on new perspective
         val aiOutputJson = readJsonFromResources("open_ai_json_output_1.json")
-        val graph = OpenAiMapDescParser().parseAiMapDesc(aiOutputJson)
+        val graph = AiMapDescParserImpl().parseAiMapDesc(aiOutputJson)
 
         assertEquals(expectedRoomNames.toSet(), graph.vertexSet().map { it.label }.toSet())
         assertEquals(11, graph.edgeSet().size)
@@ -42,8 +43,9 @@ class OpenAiMapDescParserTest {
 
     @Test
     fun givenSchemaCompliantJson_whenReadInconsistentGraphSpec_thenProduceGraphWithInconsistenciesRemoved() {
+        //todo update example json based on new perspective
         val aiOutputJson = readJsonFromResources("open_ai_json_output_2.json")
-        val graph = OpenAiMapDescParser().parseAiMapDesc(aiOutputJson)
+        val graph = AiMapDescParserImpl().parseAiMapDesc(aiOutputJson)
 
         assertEquals(expectedRoomNames.toSet(), graph.vertexSet().map { it.label }.toSet())
         assertEquals(10, graph.edgeSet().size)
