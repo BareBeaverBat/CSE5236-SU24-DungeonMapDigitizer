@@ -1,7 +1,11 @@
 package com.example.dungeontest
+
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
+import android.util.Base64
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
@@ -23,34 +27,27 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import android.Manifest
-import android.util.Log
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.runtime.livedata.observeAsState
-import com.example.dungeontest.data.SettingsStorage
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
-import com.example.dungeontest.model.MapListViewModel
+import androidx.navigation.NavController
+import com.example.dungeontest.data.SettingsStorage
+import com.example.dungeontest.model.MapViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
 import java.io.File
-import android.util.Base64
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarResult
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.navigation.NavController
 
 
 @SuppressLint("RememberReturnType")
@@ -63,7 +60,7 @@ fun MainScreen(
 ) {
     val context = LocalContext.current
     val preferences = SettingsStorage(context)
-    val viewModel = viewModel<MapListViewModel>()
+    val viewModel = viewModel<MapViewModel>()
     val maps = viewModel.allMaps.observeAsState()
     var photoUri by remember { mutableStateOf<Uri?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
