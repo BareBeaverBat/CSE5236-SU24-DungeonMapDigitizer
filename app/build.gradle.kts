@@ -94,8 +94,6 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.moshi)
     implementation(libs.moshi.adapters)
-    implementation(libs.moshi.kotlin)
-    implementation(libs.graph.support)
     implementation(libs.okhttp3)
 
     // To use Kotlin annotation processing tool (kapt)
