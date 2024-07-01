@@ -10,7 +10,8 @@ class GraphParser {
         val exporter = DOTExporter<MapRoom, DefaultEdge>()
         val writer = StringWriter()
 
-        return exporter.exportGraph(graph, writer).toString()
+        exporter.exportGraph(graph, writer)
+        return writer.toString()
     }
 
 }
