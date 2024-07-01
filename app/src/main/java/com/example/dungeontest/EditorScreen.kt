@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -32,6 +35,9 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.dungeontest.composables.MapVisualization
+import com.example.dungeontest.composables.MiniFabItems
+import com.example.dungeontest.composables.MultiFloatingActionButton
 import com.example.dungeontest.model.EditorViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -40,15 +46,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController: NavController) {
     val snackbarHostState = remember { SnackbarHostState() }
-
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val viewModel = viewModel<EditorViewModel>()
-    val byteArray = viewModel.byteArrayOfImage.collectAsState().value
-    val bitmapImage = byteArray?.let {
-        BitmapFactory.decodeByteArray(it, 0, it.size)
-    }
-
+    var testDot = viewModel.testDot
 
     Scaffold(
         snackbarHost = {
@@ -71,12 +72,25 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-            }) {
-                Icon(Icons.Filled.Edit, contentDescription = "Edit")
-            }
+            // for Scott
+            val items = listOf(
+                MiniFabItems(Icons.Filled.Check, "Save", onClick = {
+                    //onClick logic goes here
+                }),
+                MiniFabItems(Icons.Filled.Edit, "Rename Node", onClick =
+                {
+                    //onClick logic goes here
+                }),
+                MiniFabItems(Icons.Filled.Add, "Add Edge", onClick = {
+                    //onClick logic goes here
+                }),
+                MiniFabItems(Icons.Filled.Clear, "Delete Edge", onClick = {
+                    //onClick logic goes here
+                }),
+            )
+            MultiFloatingActionButton(items)
         },
-        floatingActionButtonPosition = FabPosition.Center
+        floatingActionButtonPosition = FabPosition.End
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -89,13 +103,7 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxSize()
             ) {
-                if (bitmapImage != null) {
-                    Image(
-                        bitmap = bitmapImage.asImageBitmap(),
-                        contentDescription = "Generated Graph Image",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
+                MapVisualization(testDot)
             }
 
         }
