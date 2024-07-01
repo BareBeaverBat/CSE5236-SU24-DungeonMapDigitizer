@@ -1,13 +1,212 @@
-[
-  {"id": 1, "label": "Entrance", "neighbors": [2, 3, 7]},
-  {"id": 2, "label": "Room of Murals", "neighbors": [1]},
-  {"id": 3, "label": "Chamber with just bones and shattered pottery", "neighbors": [1, 4]},
-  {"id": 4, "label": "Goblin Pen", "neighbors": [3, 5, 6, 7]},
-  {"id": 5, "label": "Goblin Valuables", "neighbors": [4]},
-  {"id": 6, "label": "Goblin Pantry", "neighbors": [4]},
-  {"id": 7, "label": "Giant Insects (feeding on fungal growths)", "neighbors": [1, 4, 8]},
-  {"id": 8, "label": "Insect Queen!", "neighbors": [7, 9, 11]},
-  {"id": 9, "label": "Insect Larder", "neighbors": [8]},
-  {"id": 10, "label": "Pupation Chamber", "neighbors": [11]},
-  {"id": 11, "label": "Insect Nursery", "neighbors": [8, 10]}
-]
+{
+  "rooms": [
+    {"id": 1, "name": "Insect Larder"},
+    {"id": 2, "name": "Pupation Chamber"},
+    {"id": 3, "name": "Insect Queen!"},
+    {"id": 4, "name": "Insect Nursery"},
+    {"id": 5, "name": "Room of Murals (only partly covered by graffiti)"},
+    {"id": 6, "name": "Entrance"},
+    {"id": 7, "name": "Giant Insects (feeding on fungal growths)"},
+    {"id": 8, "name": "Chamber with just bones and shattered pottery"},
+    {"id": 9, "name": "Goblin Pen!"},
+    {"id": 10, "name": "Goblin Valuables"},
+    {"id": 11, "name": "Goblin Pantry"}
+  ],
+  "adjacency_analysis": {
+    "1": {
+      "name": "Insect Larder",
+      "top_side": [],
+      "left_side": [],
+      "right_side": [{"id": 2, "name": "Pupation Chamber"}],
+      "bottom_side": [{"id": 3, "name": "Insect Queen!"}],
+      "neighbors": [{"id": 2, "name": "Pupation Chamber"}, {"id": 3, "name": "Insect Queen!"}]
+    },
+    "2": {
+      "name": "Pupation Chamber",
+      "top_side": [],
+      "left_side": [{"id": 1, "name": "Insect Larder"}],
+      "right_side": [],
+      "bottom_side": [{"id": 4, "name": "Insect Nursery"}],
+      "neighbors": [{"id": 1, "name": "Insect Larder"}, {"id": 4, "name": "Insect Nursery"}]
+    },
+    "3": {
+      "name": "Insect Queen!",
+      "top_side": [{"id": 1, "name": "Insect Larder"}],
+      "left_side": [{"id": 5, "name": "Room of Murals (only partly covered by graffiti)"}],
+      "right_side": [{"id": 4, "name": "Insect Nursery"}],
+      "bottom_side": [{"id": 7, "name": "Giant Insects (feeding on fungal growths)"}],
+      "neighbors": [
+        {"id": 1, "name": "Insect Larder"},
+        {"id": 5, "name": "Room of Murals (only partly covered by graffiti)"},
+        {"id": 4, "name": "Insect Nursery"},
+        {"id": 7, "name": "Giant Insects (feeding on fungal growths)"}
+      ]
+    },
+    "4": {
+      "name": "Insect Nursery",
+      "top_side": [{"id": 2, "name": "Pupation Chamber"}],
+      "left_side": [{"id": 3, "name": "Insect Queen!"}],
+      "right_side": [],
+      "bottom_side": [],
+      "neighbors": [{"id": 2, "name": "Pupation Chamber"}, {"id": 3, "name": "Insect Queen!"}]
+    },
+    "5": {
+      "name": "Room of Murals (only partly covered by graffiti)",
+      "top_side": [],
+      "left_side": [],
+      "right_side": [{"id": 3, "name": "Insect Queen!"}],
+      "bottom_side": [{"id": 6, "name": "Entrance"}],
+      "neighbors": [{"id": 3, "name": "Insect Queen!"}, {"id": 6, "name": "Entrance"}]
+    },
+    "6": {
+      "name": "Entrance",
+      "top_side": [{"id": 5, "name": "Room of Murals (only partly covered by graffiti)"}],
+      "left_side": [{"id": 8, "name": "Chamber with just bones and shattered pottery"}],
+      "right_side": [],
+      "bottom_side": [{"id": 7, "name": "Giant Insects (feeding on fungal growths)"}],
+      "neighbors": [
+        {"id": 5, "name": "Room of Murals (only partly covered by graffiti)"},
+        {"id": 8, "name": "Chamber with just bones and shattered pottery"},
+        {"id": 7, "name": "Giant Insects (feeding on fungal growths)"}
+      ]
+    },
+    "7": {
+      "name": "Giant Insects (feeding on fungal growths)",
+      "top_side": [{"id": 3, "name": "Insect Queen!"}, {"id": 6, "name": "Entrance"}],
+      "left_side": [],
+      "right_side": [{"id": 9, "name": "Goblin Pen!"}],
+      "bottom_side": [],
+      "neighbors": [
+        {"id": 3, "name": "Insect Queen!"},
+        {"id": 6, "name": "Entrance"},
+        {"id": 9, "name": "Goblin Pen!"}
+      ]
+    },
+    "8": {
+      "name": "Chamber with just bones and shattered pottery",
+      "top_side": [],
+      "left_side": [],
+      "right_side": [{"id": 6, "name": "Entrance"}],
+      "bottom_side": [],
+      "neighbors": [{"id": 6, "name": "Entrance"}]
+    },
+    "9": {
+      "name": "Goblin Pen!",
+      "top_side": [],
+      "left_side": [{"id": 7, "name": "Giant Insects (feeding on fungal growths)"}],
+      "right_side": [{"id": 10, "name": "Goblin Valuables"}],
+      "bottom_side": [{"id": 11, "name": "Goblin Pantry"}],
+      "neighbors": [
+        {"id": 7, "name": "Giant Insects (feeding on fungal growths)"},
+        {"id": 10, "name": "Goblin Valuables"},
+        {"id": 11, "name": "Goblin Pantry"}
+      ]
+    },
+    "10": {
+      "name": "Goblin Valuables",
+      "top_side": [],
+      "left_side": [{"id": 9, "name": "Goblin Pen!"}],
+      "right_side": [],
+      "bottom_side": [],
+      "neighbors": [{"id": 9, "name": "Goblin Pen!"}]
+    },
+    "11": {
+      "name": "Goblin Pantry",
+      "top_side": [{"id": 9, "name": "Goblin Pen!"}],
+      "left_side": [],
+      "right_side": [],
+      "bottom_side": [],
+      "neighbors": [{"id": 9, "name": "Goblin Pen!"}]
+    }
+  },
+  "final_result": [
+    {
+      "id": 1,
+      "label": "Entrance",
+      "neighbors": [
+        2,
+        3,
+        7
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Room of Murals",
+      "neighbors": [
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "label": "Chamber with just bones and shattered pottery",
+      "neighbors": [
+        1,
+        4
+      ]
+    },
+    {
+      "id": 4,
+      "label": "Goblin Pen",
+      "neighbors": [
+        3,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "id": 5,
+      "label": "Goblin Valuables",
+      "neighbors": [
+        4
+      ]
+    },
+    {
+      "id": 6,
+      "label": "Goblin Pantry",
+      "neighbors": [
+        4
+      ]
+    },
+    {
+      "id": 7,
+      "label": "Giant Insects (feeding on fungal growths)",
+      "neighbors": [
+        1,
+        4,
+        8
+      ]
+    },
+    {
+      "id": 8,
+      "label": "Insect Queen!",
+      "neighbors": [
+        7,
+        9,
+        11
+      ]
+    },
+    {
+      "id": 9,
+      "label": "Insect Larder",
+      "neighbors": [
+        8
+      ]
+    },
+    {
+      "id": 10,
+      "label": "Pupation Chamber",
+      "neighbors": [
+        11
+      ]
+    },
+    {
+      "id": 11,
+      "label": "Insect Nursery",
+      "neighbors": [
+        8,
+        10
+      ]
+    }
+  ]
+}
