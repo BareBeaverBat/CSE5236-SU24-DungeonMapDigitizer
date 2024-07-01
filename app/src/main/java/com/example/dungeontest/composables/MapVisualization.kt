@@ -23,7 +23,7 @@ import okhttp3.HttpUrl
 import kotlin.math.roundToInt
 
 @Composable
-fun MapVisualization(dotAsString : String) {
+fun MapVisualization(dotAsString: String) {
     val currPrimaryColor = with(MaterialTheme.colorScheme.primary) {
         String.format("%.1f %.1f %.1f", red, green, blue)
     }
@@ -35,12 +35,15 @@ fun MapVisualization(dotAsString : String) {
 
     // colorize the dot string
     val colorizedDotAsString = dotAsString
-        .replace("{",
-            "{\n  bgcolor = $bgColor; \n" +
-                    "  node [color=\"$currPrimaryColor\", shape=$nodeShape, fontcolor=\"$currPrimaryColor\", penwidth=2.5];" +
-                    "  edge [color=\"$currSecondaryColor\", penwidth=1.5];" +
-                    "  size = \"50,50!\";" +
-                    "  beautify = true;"
+        .replace(
+            "{",
+            """{
+            |bgcolor = $bgColor; 
+            |node [color="$currPrimaryColor", shape=$nodeShape, fontcolor="$currPrimaryColor", penwidth=2.5];  
+            |edge [color="$currSecondaryColor", penwidth=1.5];  
+            |size = "50,50!";  
+            |beautify = true;
+            """.trimMargin()
         )
 
     // generate the required URL
