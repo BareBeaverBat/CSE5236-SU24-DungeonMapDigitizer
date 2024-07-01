@@ -35,18 +35,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.dungeontest.model.MapListViewModel
-import com.example.dungeontest.ui.theme.DungeonTestTheme
-import kotlinx.coroutines.launch
 import androidx.navigation.navArgument
-import androidx.navigation.NavType
-
+import com.example.dungeontest.model.MapViewModel
 import com.example.dungeontest.model.MapRecord
+import com.example.dungeontest.ui.theme.DungeonTestTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private val TAG = "MainActivity"
@@ -145,6 +144,9 @@ fun RootScreen() {
                 val photoUri = backStack.arguments?.getString("PhotoUri") ?: ""
                 NamingScreen(drawerState, scope, photoUri, navController)
             }
+            composable("EditorScreen") {
+                EditorScreen(drawerState, scope, navController)
+            }
         }
     }
 }
@@ -192,7 +194,7 @@ fun MapDetailsCard(item: MapRecord, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SavedMapEntry(mapDetails: MapRecord, viewModel: MapListViewModel, modifier: Modifier = Modifier) {
+fun SavedMapEntry(mapDetails: MapRecord, viewModel: MapViewModel, modifier: Modifier = Modifier) {
     Row(modifier = modifier) {
         MapDetailsCard(item = mapDetails, Modifier.weight(0.9f))
         IconButton(onClick = {

@@ -3,7 +3,7 @@ package com.example.dungeontest.model
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 
-class MapListViewModel(application: Application) : AndroidViewModel(application)  {
+class MapViewModel(application: Application) : AndroidViewModel(application)  {
     private val mapRepository: MapRepository = MapRepository(application)
     val allMaps = mapRepository.allMaps
 
