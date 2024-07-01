@@ -95,6 +95,7 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.adapters)
     implementation(libs.okhttp3)
+    implementation(libs.coil)
 
     // To use Kotlin annotation processing tool (kapt)
     kapt(libs.androidx.room.compiler)
