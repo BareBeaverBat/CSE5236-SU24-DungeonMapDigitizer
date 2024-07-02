@@ -186,7 +186,7 @@ fun MapDetailsCard(item: MapRecord, modifier: Modifier = Modifier) {
                 )
                 Text(
                     modifier = Modifier.padding(18.dp).weight(0.5f),
-                    text = item.pictureFileName.takeLast(20)
+                    text = item.pictureFileName.takeLast(10)
                 )
             }
         }
