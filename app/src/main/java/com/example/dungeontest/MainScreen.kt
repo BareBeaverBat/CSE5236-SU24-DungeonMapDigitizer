@@ -48,7 +48,7 @@ import com.example.dungeontest.data.SettingsStorage
 import com.example.dungeontest.model.MapViewModel
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.RESULT_FORMAT_JPEG
-import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.SCANNER_MODE_BASE_WITH_FILTER
+import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.SCANNER_MODE_FULL
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import kotlinx.coroutines.CoroutineScope
@@ -71,7 +71,7 @@ fun MainScreen(
         .setGalleryImportAllowed(true)
         .setPageLimit(1)
         .setResultFormats(RESULT_FORMAT_JPEG)
-        .setScannerMode(SCANNER_MODE_BASE_WITH_FILTER)
+        .setScannerMode(SCANNER_MODE_FULL)
         .build()
 
     val scanner = GmsDocumentScanning.getClient(options)
