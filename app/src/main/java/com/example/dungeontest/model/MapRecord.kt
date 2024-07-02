@@ -8,5 +8,4 @@ import androidx.room.PrimaryKey
 data class MapRecord(
     @PrimaryKey @ColumnInfo(name = "map_name") val mapName: String,
     @ColumnInfo(name = "picture_file_name") val pictureFileName: String,
-    @ColumnInfo(name = "map_visualization_byte_array") val mapVisualizationByteArray: ByteArray?,
 )

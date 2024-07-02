@@ -21,6 +21,7 @@ roomRuntime = "2.6.1"
 lifecycleLivedataKtx = "2.8.1"
 junitJupiter = "5.8.1"
 okhttp3 = "4.9.2"
+coroutineImageLoader = "2.6.0"
 
 
 [libraries]
@@ -57,6 +58,7 @@ moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "mosh
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 okhttp3 = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp3" }
+coil = { module = "io.coil-kt:coil-compose", version.ref = "coroutineImageLoader" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -9,13 +9,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -29,12 +31,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.dungeontest.composables.MapVisualization
+import com.example.dungeontest.composables.MiniFabItems
+import com.example.dungeontest.composables.MultiFloatingActionButton
 import com.example.dungeontest.model.EditorViewModel
 import com.example.dungeontest.model.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -45,7 +49,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController: NavController) {
     val snackbarHostState = remember { SnackbarHostState() }
-
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val viewModel = viewModel<EditorViewModel>()
@@ -72,8 +75,10 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
         Log.v("EditorScreen", settingsViewModel.tokenValue)
         Log.v("EditorScreen", settingsViewModel.selectedModel.toString())
 
+
         loading.value = false
     }
+    var testDot = viewModel.testDot
 
     if(loading.value){
         Box(
@@ -106,12 +111,25 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(onClick = {
-                }) {
-                    Icon(Icons.Filled.Edit, contentDescription = "Edit")
-                }
-            },
-            floatingActionButtonPosition = FabPosition.Center
+                // for Scott
+            val items = listOf(
+                MiniFabItems(Icons.Filled.Check, "Save",onClick = {
+                //onClick logic goes here
+                    }),
+                MiniFabItems(Icons.Filled.Edit, "Rename Node", onClick =
+                {
+                    //onClick logic goes here
+                }),
+                MiniFabItems(Icons.Filled.Add, "Add Edge", onClick = {
+                    //onClick logic goes here
+                }),
+                MiniFabItems(Icons.Filled.Clear, "Delete Edge", onClick = {
+                    //onClick logic goes here
+                }),
+            )
+            MultiFloatingActionButton(items)
+        },
+        floatingActionButtonPosition = FabPosition.End
         ) { innerPadding ->
             Box(
                 modifier = Modifier
@@ -119,19 +137,12 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
                     .padding(innerPadding)
             ) {
 
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    if (bitmapImage != null) {
-                        Image(
-                            bitmap = bitmapImage.asImageBitmap(),
-                            contentDescription = "Generated Graph Image",
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                }
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                MapVisualization(testDot)
             }
         }
     }

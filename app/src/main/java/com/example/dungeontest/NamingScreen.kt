@@ -116,7 +116,6 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                                 val didSaveMap = viewModel.insertMap(MapRecord(
                                     mapName,
                                     photoUri,
-                                    null
                                 ))
                                 navController.navigate("EditorScreen")
                             }
@@ -154,7 +153,6 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                             viewModel.updateMap(MapRecord(
                                 mapName,
                                 photoUri,
-                                null
                             ))
                         }
                         showDialog.value = false
