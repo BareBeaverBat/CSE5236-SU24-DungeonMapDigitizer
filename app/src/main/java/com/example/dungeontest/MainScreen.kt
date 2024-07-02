@@ -67,29 +67,37 @@ fun MainScreen(
     val preferences = SettingsStorage(context)
     val viewModel = viewModel<MapViewModel>()
     
-    val options = GmsDocumentScannerOptions.Builder()
-        .setGalleryImportAllowed(true)
-        .setPageLimit(1)
-        .setResultFormats(RESULT_FORMAT_JPEG)
-        .setScannerMode(SCANNER_MODE_FULL)
-        .build()
+    val options = remember {
+        GmsDocumentScannerOptions.Builder()
+            .setGalleryImportAllowed(true)
+            .setPageLimit(1)
+            .setResultFormats(RESULT_FORMAT_JPEG)
+            .setScannerMode(SCANNER_MODE_FULL)
+            .build()
+    }
 
-    val scanner = GmsDocumentScanning.getClient(options)
+    val scanner = remember { GmsDocumentScanning.getClient(options) }
+
     var photoUri by remember {
         mutableStateOf<Uri?>(null)
     }
+
     val scannerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult(),
         onResult = {
             if (it.resultCode == RESULT_OK) {
                 val result = GmsDocumentScanningResult.fromActivityResultIntent(it.data)
                 photoUri = result?.pages?.get(0)?.imageUri
-                photoUri?.let {
+                if (photoUri != null) {
                     val base64EncodedUri = Base64.encodeToString(photoUri.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
                     navController.navigate("NamingScreen/$base64EncodedUri") {
                         popUpTo("NamingScreen") { inclusive = true }
                     }
+                } else {
+                    Log.d("MainScreen", "photoUri is null. Result: ${result?.toString()}")
                 }
+            } else {
+                Log.d("MainScreen", "Scanner resultCode not OK.")
             }
         }
     )
