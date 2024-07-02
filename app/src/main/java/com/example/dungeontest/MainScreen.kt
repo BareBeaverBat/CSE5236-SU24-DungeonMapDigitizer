@@ -46,6 +46,7 @@ import androidx.navigation.NavController
 import com.example.dungeontest.data.SettingsStorage
 import com.example.dungeontest.model.MapViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -93,6 +94,7 @@ fun MainScreen(
                                     "API Key is required to proceed.",
                                     duration = SnackbarDuration.Short
                                 )
+                        this.cancel()
                     } else {
                         photoUri = createImageFileUri(context)
                         cameraLauncher.launch(photoUri!!)

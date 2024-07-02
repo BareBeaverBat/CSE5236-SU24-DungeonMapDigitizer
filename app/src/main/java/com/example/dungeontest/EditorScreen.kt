@@ -53,10 +53,6 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
     val focusManager = LocalFocusManager.current
     val viewModel = viewModel<EditorViewModel>()
     val settingsViewModel: SettingsViewModel = viewModel<SettingsViewModel>()
-    val byteArray = viewModel.byteArrayOfImage.collectAsState().value
-    val bitmapImage = byteArray?.let {
-        BitmapFactory.decodeByteArray(it, 0, it.size)
-    }
 
     val statusMessage = remember {
         mutableStateOf<String>("Loading")
@@ -68,7 +64,7 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
 
     val loading = remember {
         /* determine launch with loading based on logic regarding graphString */
-        mutableStateOf<Boolean>(true)
+        mutableStateOf<Boolean>(false)
     }
 
     LaunchedEffect(key1 = Unit) {
@@ -80,7 +76,7 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
     }
     var testDot = viewModel.testDot
 
-    if(loading.value){
+    if (loading.value) {
         Box(
             modifier = Modifier
                 .fillMaxSize(),
@@ -88,8 +84,7 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
         ) {
             Text(text = statusMessage.value)
         }
-    }
-    else{
+    } else {
         Scaffold(
             snackbarHost = {
                 SnackbarHost(hostState = snackbarHostState)
@@ -112,24 +107,24 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
             },
             floatingActionButton = {
                 // for Scott
-            val items = listOf(
-                MiniFabItems(Icons.Filled.Check, "Save",onClick = {
-                //onClick logic goes here
+                val items = listOf(
+                    MiniFabItems(Icons.Filled.Check, "Save", onClick = {
+                        //onClick logic goes here
                     }),
-                MiniFabItems(Icons.Filled.Edit, "Rename Node", onClick =
-                {
-                    //onClick logic goes here
-                }),
-                MiniFabItems(Icons.Filled.Add, "Add Edge", onClick = {
-                    //onClick logic goes here
-                }),
-                MiniFabItems(Icons.Filled.Clear, "Delete Edge", onClick = {
-                    //onClick logic goes here
-                }),
-            )
-            MultiFloatingActionButton(items)
-        },
-        floatingActionButtonPosition = FabPosition.End
+                    MiniFabItems(Icons.Filled.Edit, "Rename Node", onClick =
+                    {
+                        //onClick logic goes here
+                    }),
+                    MiniFabItems(Icons.Filled.Add, "Add Edge", onClick = {
+                        //onClick logic goes here
+                    }),
+                    MiniFabItems(Icons.Filled.Clear, "Delete Edge", onClick = {
+                        //onClick logic goes here
+                    }),
+                )
+                MultiFloatingActionButton(items)
+            },
+            floatingActionButtonPosition = FabPosition.End
         ) { innerPadding ->
             Box(
                 modifier = Modifier
@@ -137,12 +132,13 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
                     .padding(innerPadding)
             ) {
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                MapVisualization(testDot)
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    MapVisualization(testDot)
+                }
             }
         }
     }
