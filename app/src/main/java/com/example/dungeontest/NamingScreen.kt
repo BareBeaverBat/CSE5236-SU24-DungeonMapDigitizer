@@ -105,7 +105,7 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     onClick = {
-                        Log.v("SaveButton", "button clicked")
+                        Log.v("NextButton", "button clicked")
                         scope.launch {
                             val mapName = mapInputNameVal.value.text
                             val exists = viewModel.mapExists(mapName)
@@ -126,7 +126,7 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                         .fillMaxWidth()
                         .padding(horizontal = 10.dp, vertical = 10.dp)
                 ) {
-                    Text("Save")
+                    Text("Continue")
                 }
             }
         }
