@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.dungeontest.composables.MapDetailsCard
 import com.example.dungeontest.data.SettingsStorage
 import com.example.dungeontest.model.MapViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -148,7 +149,7 @@ fun MainScreen(
             ) {
 
                 items(maps.value ?: listOf()) { mapDetails ->
-                    SavedMapEntry(mapDetails, viewModel)
+                    MapDetailsCard(mapDetails,viewModel, mapDetails)
                 }
             }
         }
