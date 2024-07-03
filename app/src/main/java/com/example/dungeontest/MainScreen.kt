@@ -97,7 +97,7 @@ fun MainScreen(
                     Log.d("MainScreen", "photoUri is null. Result: ${result?.toString()}")
                 }
             } else {
-                Log.d("MainScreen", "Scanner resultCode not OK.")
+                Log.d("MainScreen", "Scanner resultCode not OK. Result code: ${it.resultCode}")
             }
         }
     )
