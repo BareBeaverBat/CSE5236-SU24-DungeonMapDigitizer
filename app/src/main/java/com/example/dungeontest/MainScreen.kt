@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.dungeontest.composables.MapDetailsCard
 import com.example.dungeontest.data.SettingsStorage
 import com.example.dungeontest.model.MapViewModel
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
@@ -191,7 +192,7 @@ fun MainScreen(
             ) {
 
                 items(maps.value ?: listOf()) { mapDetails ->
-                    SavedMapEntry(mapDetails, viewModel)
+                    MapDetailsCard(mapDetails,viewModel, mapDetails)
                 }
             }
         }
