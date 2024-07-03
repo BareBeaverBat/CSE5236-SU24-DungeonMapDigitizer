@@ -2,11 +2,13 @@ package com.example.dungeontest
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
+import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -40,14 +42,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dungeontest.data.SettingsStorage
 import com.example.dungeontest.model.MapViewModel
+import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
+import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.RESULT_FORMAT_JPEG
+import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.SCANNER_MODE_FULL
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.io.File
 
 
 @SuppressLint("RememberReturnType")
@@ -61,25 +66,46 @@ fun MainScreen(
     val context = LocalContext.current
     val preferences = SettingsStorage(context)
     val viewModel = viewModel<MapViewModel>()
-    val maps = viewModel.allMaps.observeAsState()
-    var photoUri by remember { mutableStateOf<Uri?>(null) }
-    val snackbarHostState = remember { SnackbarHostState() }
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            photoUri?.let {
-                Log.v("MainScreen", "Photo URI: $it")
-                /* Encode the URI to base64 because it's a file path. Navigation uses / */
+    
+    val options = remember {
+        GmsDocumentScannerOptions.Builder()
+            .setGalleryImportAllowed(true)
+            .setPageLimit(1)
+            .setResultFormats(RESULT_FORMAT_JPEG)
+            .setScannerMode(SCANNER_MODE_FULL)
+            .build()
+    }
 
-                 val base64EncodedUri = Base64.encodeToString(it.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
-                /* navcontroller is passed from the NavGraph setup in MainActivity */
-                navController.navigate("NamingScreen/$base64EncodedUri") {
-                    popUpTo("NamingScreen") { inclusive = true }
+    val scanner = remember { GmsDocumentScanning.getClient(options) }
+
+    var photoUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    val scannerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult(),
+        onResult = {
+            if (it.resultCode == RESULT_OK) {
+                val result = GmsDocumentScanningResult.fromActivityResultIntent(it.data)
+                photoUri = result?.pages?.get(0)?.imageUri
+                if (photoUri != null) {
+                    val base64EncodedUri = Base64.encodeToString(photoUri.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+                    navController.navigate("NamingScreen/$base64EncodedUri") {
+                        popUpTo("NamingScreen") { inclusive = true }
+                    }
+                } else {
+                    Log.d("MainScreen", "photoUri is null. Result: ${result?.toString()}")
                 }
+            } else {
+                Log.d("MainScreen", "Scanner resultCode not OK. Result code: ${it.resultCode}")
             }
         }
-    }
+    )
+
+    
+    val maps = viewModel.allMaps.observeAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -94,18 +120,33 @@ fun MainScreen(
                                     duration = SnackbarDuration.Short
                                 )
                     } else {
-                        photoUri = createImageFileUri(context)
-                        cameraLauncher.launch(photoUri!!)
+                        scanner.getStartScanIntent(context as Activity)
+                            .addOnSuccessListener {
+                                scannerLauncher.launch(
+                                    IntentSenderRequest.Builder(it).build()
+                                )
+                            }
+                            .addOnFailureListener{
+                                scope.launch {
+                                    if (snackbarHostState.currentSnackbarData == null)
+                                        snackbarHostState.showSnackbar(
+                                            "An error occurred while starting the scanner.",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                }
+                                Log.d("MainScreen", "Error triggered at scanner.getStartScanIntent()")
+                            }
                     }
                 }
             }
 
-
         } else {
             scope.launch {
-                // Show a snackbar message. Ideally shouldn't overlap
-                // TODO: Handle limited invokations of a snackbar
-                snackbarHostState.showSnackbar("Camera permission is required to take photos")
+                if (snackbarHostState.currentSnackbarData == null)
+                    snackbarHostState.showSnackbar(
+                        "Camera permission is required to take photos",
+                        duration = SnackbarDuration.Short
+                    )
             }
         }
     }
@@ -131,7 +172,9 @@ fun MainScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
+
                 permissionLauncher.launch(Manifest.permission.CAMERA)
+
             }) {
                 Icon(Icons.Filled.Add, contentDescription = "Floating action button.")
 
@@ -153,12 +196,4 @@ fun MainScreen(
             }
         }
     }
-}
-
-fun createImageFileUri(context: Context): Uri {
-    val imagePath = File(context.getExternalFilesDir(null), "images")
-    imagePath.mkdirs()
-    //todo need to make uuid instead of hardcoded name 'photo'?
-    val imageFile = File(imagePath, "photo.jpg")
-    return FileProvider.getUriForFile(context, "${context.packageName}.file provider", imageFile)
 }
