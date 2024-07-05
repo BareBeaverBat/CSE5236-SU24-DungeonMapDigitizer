@@ -37,6 +37,8 @@ import androidx.navigation.NavController
 import com.example.dungeontest.composables.MapVisualization
 import com.example.dungeontest.composables.MiniFabItems
 import com.example.dungeontest.composables.MultiFloatingActionButton
+import com.example.dungeontest.graph.AiMapDescParserImpl
+import com.example.dungeontest.graph.OpenAiRespRoomAdapter
 import com.example.dungeontest.model.EditorViewModel
 import com.example.dungeontest.model.MapViewModel
 import com.example.dungeontest.model.SettingsViewModel
@@ -66,15 +68,31 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
         if(transitoryMapRecord != null){
 
             val requestBuilder = OpenAiRequestBuilder()
+            val stringApiVersion = if(settingsViewModel.selectedModel == 0) "gpt-4-turbo" else "gpt-4o"
 
-            requestBuilder.testingRequests { response ->
-                if (response != null) {
-                    Log.v("APIResponse", response)
-                } else {
-                    Log.v("APIResponse", "Response was null")
-                }
-                loading.value = false
+            requestBuilder.sendOpenAIRequest(
+                    settingsViewModel.tokenValue,
+                    stringApiVersion,
+                    transitoryMapRecord.pictureFileName
+                ){ response ->
+                    if(response != null){
+                        val graph = AiMapDescParserImpl().parseAiMapDesc(response, OpenAiRespRoomAdapter())
+                        /* Do what we must with the graph */
+                    }
+                    else{
+                        Log.v("OpenAIResponse", "response was null")
+                    }
+                    loading.value = false;
             }
+
+//            requestBuilder.testingRequests { response ->
+//                if (response != null) {
+//                    Log.v("APIResponse", response)
+//                } else {
+//                    Log.v("APIResponse", "Response was null")
+//                }
+//                loading.value = false
+//            }
         }
         else{
             Log.v("EditorScreen", "Transitory map record was null")

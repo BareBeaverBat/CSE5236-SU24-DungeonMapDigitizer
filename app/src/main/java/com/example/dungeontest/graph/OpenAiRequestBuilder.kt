@@ -1,24 +1,21 @@
 
+import android.util.Log
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
+import java.util.Base64
 
 val JSON = "application/json; charset=utf-8".toMediaTypeOrNull()
-val MEDIA_TYPE_PNG = "image/png".toMediaTypeOrNull()
-
-data class OpenAIResponse(val id: String, val objectType: String, val created: Long, val choice: Choice)
-data class Choice(val text: String, val index: Int, val logprobs: Any?, val finish_reason: String?)
-
 class OpenAiRequestBuilder {
-    private val baseUri = "https://api.openai.com/v1/images/generations"
+    private val baseUri = "https://api.openai.com/v1/chat/completions"
     private val prompt = """
         This drawing describes a network of rooms, which can be thought of as an undirected graph (each room is a node, hallways are edges). Each room is represented by box containing a text label, and each hallway is represented by 2 parallel lines.
 
@@ -30,6 +27,9 @@ class OpenAiRequestBuilder {
     """.trimIndent()
 
     private val client = OkHttpClient()
+
+    /* Probably can adjust this? */
+    private val maxTokenCount = 300
 
     fun testingRequests(callback: (String?) -> Unit){
         val request = Request.Builder()
@@ -60,7 +60,7 @@ class OpenAiRequestBuilder {
         })
     }
 
-    fun sendOpenAIRequest(apiKey: String, imagePath: String, callback: (OpenAIResponse?) -> Unit) {
+    fun sendOpenAIRequest(apiKey: String, apiVersion: String, imagePath: String, callback: (String?) -> Unit) {
         val imageFile = File(imagePath)
         if (!imageFile.exists()) {
             println("Image file not found: $imagePath")
@@ -68,19 +68,40 @@ class OpenAiRequestBuilder {
             return
         }
 
-        val imageRequestBody = imageFile.asRequestBody(MEDIA_TYPE_PNG)
+        val imageBytes = imageFile.readBytes()
+        val imageBase64 = Base64.getEncoder().encodeToString(imageBytes)
 
-        val requestBody = MultipartBody.Builder()
-            .setType(MultipartBody.FORM)
-            .addFormDataPart("prompt", prompt)
-            .addFormDataPart("image", imageFile.name, imageRequestBody)
-            .build()
+        val jsonBody = JSONObject().apply {
+            put("model", apiVersion)
+            put("response_format", JSONObject().apply {
+                put("type", "json_object")
+            })
+            put("messages", JSONArray().apply {
+                put(JSONObject().apply {
+                    put("content", JSONArray().apply {
+                        put(JSONObject().apply {
+                            put("type", "text")
+                            put("text", prompt)
+                        })
+                        put(JSONObject().apply {
+                            put("type", "image_url")
+                            put("image_url", JSONObject().apply {
+                                put("url", "data:image/jpeg;base64,$imageBase64")
+                            })
+                        })
+                    })
+                })
+            })
+            put("max_tokens", maxTokenCount)
+        }
+
+        val payload = jsonBody.toString().toRequestBody(JSON)
 
         val request = Request.Builder()
             .url(baseUri)
             .addHeader("Authorization", "Bearer $apiKey")
-            .addHeader("Accept", "application/json") // Ensure the response returns JSON
-            .post(requestBody)
+            .addHeader("Accept", "application/json")
+            .post(payload)
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -91,7 +112,7 @@ class OpenAiRequestBuilder {
 
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
-                    println("Unexpected code $response")
+                    Log.v("OpenAIRequestBuilder", "Unexpected Response Code $response")
                     callback(null)
                 } else {
                     val responseBody = response.body?.string()
@@ -99,20 +120,14 @@ class OpenAiRequestBuilder {
                         val jsonResponse = JSONObject(it)
                         val choiceJson = jsonResponse.getJSONArray("choices").getJSONObject(0)
 
-                        val choice = Choice(
-                            text = choiceJson.getString("text"),
-                            index = choiceJson.getInt("index"),
-                            logprobs = choiceJson.opt("logprobs"),
-                            finish_reason = choiceJson.getString("finish_reason")
-                        )
-
-                        val openAIResponse = OpenAIResponse(
-                            id = jsonResponse.getString("id"),
-                            objectType = jsonResponse.getString("object"),
-                            created = jsonResponse.getLong("created"),
-                            choice = choice
-                        )
-                        callback(openAIResponse)
+                        if(choiceJson != null){
+                            val message = choiceJson.getJSONObject("message")
+                            val content = message.get("content").toString()
+                            callback(content)
+                        }
+                        else{
+                            callback(null)
+                        }
                     } ?: run {
                         callback(null)
                     }

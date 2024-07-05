@@ -33,6 +33,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,6 +42,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.dungeontest.graph.deletePhotoFromInternalStorage
 import com.example.dungeontest.model.MapRecord
 import com.example.dungeontest.model.MapViewModel
 import com.example.dungeontest.ui.theme.DungeonTestTheme
@@ -190,7 +192,7 @@ fun MapDetailsCard(item: MapRecord, modifier: Modifier = Modifier) {
                 )
                 Text(
                     modifier = Modifier
-                        .padding(18.dp)
+                        .padding(2.dp, 18.dp)
                         .weight(0.5f),
                     text = item.pictureFileName.takeLast(20)
                 )
@@ -201,11 +203,13 @@ fun MapDetailsCard(item: MapRecord, modifier: Modifier = Modifier) {
 
 @Composable
 fun SavedMapEntry(mapDetails: MapRecord, viewModel: MapViewModel, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
     Row(modifier = modifier) {
         MapDetailsCard(item = mapDetails, Modifier.weight(0.9f))
         IconButton(onClick = {
             CoroutineScope(Dispatchers.IO).launch {
                 val deleteResult = viewModel.deleteMap(mapDetails)
+                deletePhotoFromInternalStorage(context, mapDetails.mapName)
                 Log.d("MapDetails", "deleteResult: $deleteResult for map $mapDetails")
             }
         }, modifier = Modifier
