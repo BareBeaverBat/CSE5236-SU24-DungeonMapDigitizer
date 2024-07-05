@@ -24,12 +24,13 @@ class OpenAiRequestBuilder {
 
         First, please create a numbered list of the rooms in the drawing (root-level json key is "rooms", each list entry should have a numeric id in addition to a name).
         Second, for each room (A), make a list for A's top side hallways of the names and ids of the rooms on the other ends of those hallways; then make a list for A's left side hallways of the names and ids of the rooms on the other ends of those hallways; then make a list for A's right side hallways of the names and ids of the rooms on the other ends of those hallways; then make a list for A's bottom side hallways of the names and ids of the rooms on the other ends of those hallways; finally, create a single list with all of A's neighbors on those different sides. (root level json key is "adjacency_analysis").
-        Third, please make a JSON array describing that graph (root level key for the array is "final_result"), where each entry in the array is a json object containing a) a unique numeric node id (json key "id"), b) the room label from the drawing (json key "name"), and c) the id's of the rooms which it's connected to by hallways (json key "neighbors").
+        Third, please make a JSON array describing that graph (root level key for the array is "final_result"), where each entry in the array is a json object containing a) a unique numeric node id (json key "id"), b) the room label from the drawing (json key "label"), and c) the id's of the rooms which it's connected to by hallways (json key "neighbors").
     """.trimIndent()
 
     private val client = OkHttpClient
         .Builder()
-        .connectTimeout(20, TimeUnit.SECONDS)
+        .connectTimeout(40, TimeUnit.SECONDS)
+        .readTimeout(400, TimeUnit.SECONDS)
         .build()
     /* Probably can adjust this? */
     private val maxTokenCount = 3000

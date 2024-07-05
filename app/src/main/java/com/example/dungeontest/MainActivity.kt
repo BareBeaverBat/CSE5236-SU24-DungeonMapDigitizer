@@ -6,22 +6,16 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -30,10 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,13 +33,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.dungeontest.graph.deletePhotoFromInternalStorage
 import com.example.dungeontest.model.MapRecord
 import com.example.dungeontest.model.MapViewModel
-import com.example.dungeontest.model.SettingsViewModel
 import com.example.dungeontest.ui.theme.DungeonTestTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -99,7 +86,7 @@ fun RootScreen() {
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
     val mapViewModel: MapViewModel = viewModel<MapViewModel>()
-    val settingsViewModel: SettingsViewModel = viewModel<SettingsViewModel>()
+
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -140,7 +127,7 @@ fun RootScreen() {
                 MainScreen(drawerState, scope, navController, mapViewModel)
             }
             composable("SettingsScreen") {
-                SettingsScreen(drawerState, scope, settingsViewModel)
+                SettingsScreen(drawerState, scope)
             }
 
             composable (
@@ -200,28 +187,6 @@ fun MapDetailsCard(item: MapRecord, modifier: Modifier = Modifier, itemOnClick: 
                 )
             }
         }
-    }
-}
-
-@Composable
-fun SavedMapEntry(mapDetails: MapRecord, viewModel: MapViewModel, modifier: Modifier = Modifier, itemOnClick: (item: MapRecord) -> Unit) {
-    val context = LocalContext.current
-    Row(modifier = modifier) {
-        MapDetailsCard(item = mapDetails, Modifier.weight(0.9f), itemOnClick)
-        IconButton(onClick = {
-            CoroutineScope(Dispatchers.IO).launch {
-                val deleteResult = viewModel.deleteMap(mapDetails)
-                deletePhotoFromInternalStorage(context, mapDetails.mapName)
-                Log.d("MapDetails", "deleteResult: $deleteResult for map $mapDetails")
-            }
-        }, modifier = Modifier
-            .align(Alignment.CenterVertically)
-            .border(2.dp, Color.Red, shape = CircleShape)
-            .weight(0.1f)
-            ) {
-            Icon(Icons.Filled.Delete, contentDescription = "Delete")
-        }
-
     }
 }
 

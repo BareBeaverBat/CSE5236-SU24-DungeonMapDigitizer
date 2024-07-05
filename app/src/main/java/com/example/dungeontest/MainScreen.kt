@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Activity.RESULT_OK
-import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
@@ -43,20 +42,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dungeontest.composables.MapDetailsCard
-import com.example.dungeontest.data.SettingsStorage
 import com.example.dungeontest.model.MapViewModel
+import com.example.dungeontest.model.SettingsViewModel
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.RESULT_FORMAT_JPEG
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.SCANNER_MODE_FULL
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.io.File
 
 
 @SuppressLint("RememberReturnType")
@@ -69,7 +66,7 @@ fun MainScreen(
     viewModel: MapViewModel
 ) {
     val context = LocalContext.current
-    val preferences = SettingsStorage(context)
+    val settingsViewModel: SettingsViewModel = viewModel<SettingsViewModel>()
 
     val options = remember {
         GmsDocumentScannerOptions.Builder()
@@ -116,14 +113,12 @@ fun MainScreen(
     ) { isGranted ->
         if (isGranted) {
             scope.launch {
-                preferences.getAccessToken.collect { token ->
-                    if (token.isEmpty()) {
+                    if (settingsViewModel.getToken().isEmpty()) {
                         if (snackbarHostState.currentSnackbarData == null)
                                 snackbarHostState.showSnackbar(
                                     "API Key is required to proceed.",
                                     duration = SnackbarDuration.Short
                                 )
-                        this.cancel()
                     } else {
                         scanner.getStartScanIntent(context as Activity)
                             .addOnSuccessListener {
@@ -143,7 +138,7 @@ fun MainScreen(
                                 Log.d("MainScreen", "Error triggered at scanner.getStartScanIntent()")
                             }
                     }
-                }
+
             }
 
         } else {
@@ -207,10 +202,3 @@ fun MainScreen(
     }
 }
 
-fun createImageFileUri(context: Context): Uri {
-    val imagePath = File(context.getExternalFilesDir(null), "images")
-    imagePath.mkdirs()
-    //todo need to make uuid instead of hardcoded name 'photo'?
-    val imageFile = File(imagePath, "photo.jpg")
-    return FileProvider.getUriForFile(context, "${context.packageName}.file provider", imageFile)
-}

@@ -45,6 +45,7 @@ import com.example.dungeontest.model.MapViewModel
 import com.example.dungeontest.model.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import com.example.dungeontest.model.cardInfos
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,14 +68,14 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
     if(transitoryMapRecord!!.dotString == null){
         LaunchedEffect(key1 = Unit) {
             loading.value = true;
-            Log.v("EditorScreen", settingsViewModel.tokenValue)
+            Log.v("EditorScreen", "tokenValue: ${settingsViewModel.getToken()}")
             Log.v("EditorScreen", settingsViewModel.selectedModel.toString())
 
                 val requestBuilder = OpenAiRequestBuilder()
-                val stringApiVersion = if(settingsViewModel.selectedModel == 0) "gpt-4-turbo" else "gpt-4o"
+                val stringApiVersion = cardInfos.find { it.id == settingsViewModel.getSelectedModel() }?.codeName ?: ""
 
                 requestBuilder.sendOpenAIRequest(
-                    settingsViewModel.tokenValue,
+                    settingsViewModel.getToken(),
                     stringApiVersion,
                     transitoryMapRecord.pictureFileName
                 ) { response ->
