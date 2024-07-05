@@ -41,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dungeontest.data.SettingsStorage
 import com.example.dungeontest.model.MapViewModel
@@ -57,11 +56,11 @@ import java.io.File
 fun MainScreen(
     drawerState: DrawerState,
     scope: CoroutineScope,
-    navController: NavController
+    navController: NavController,
+    viewModel: MapViewModel
 ) {
     val context = LocalContext.current
     val preferences = SettingsStorage(context)
-    val viewModel = viewModel<MapViewModel>()
     val maps = viewModel.allMaps.observeAsState()
     var photoUri by remember { mutableStateOf<Uri?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -150,7 +149,10 @@ fun MainScreen(
             ) {
 
                 items(maps.value ?: listOf()) { mapDetails ->
-                    SavedMapEntry(mapDetails, viewModel)
+                    SavedMapEntry(mapDetails, viewModel){
+                        viewModel.transitoryMapRecord = it
+                        navController.navigate("EditorScreen")
+                    }
                 }
             }
         }

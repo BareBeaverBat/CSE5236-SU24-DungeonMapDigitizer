@@ -123,6 +123,7 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                                     val newMap = MapRecord(
                                         mapName,
                                         imagePath.toString(),
+                                        null
                                     )
                                     val didSaveMap = viewModel.insertMap(newMap)
                                     Log.v("NamingScreen", "Setting transitory value")
@@ -169,6 +170,7 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                                 val newMap = MapRecord(
                                     mapName,
                                     imagePath.toString(),
+                                    null
                                 )
                                 val didSaveMap = viewModel.updateMap(newMap)
                                 viewModel.transitoryMapRecord = newMap

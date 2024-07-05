@@ -57,45 +57,36 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
 
     val statusMessage = remember { mutableStateOf("Loading") }
     val graphString = remember { mutableStateOf<String?>(null) }
-    val loading = remember { mutableStateOf(true) }
+    val loading = remember { mutableStateOf(false) }
 
     val transitoryMapRecord = mapViewModel.transitoryMapRecord
+    if(transitoryMapRecord == null){
+        navController.navigate("MainScreen")
+    }
 
-    LaunchedEffect(key1 = Unit) {
-        Log.v("EditorScreen", settingsViewModel.tokenValue)
-        Log.v("EditorScreen", settingsViewModel.selectedModel.toString())
+    if(transitoryMapRecord!!.dotString == null){
+        LaunchedEffect(key1 = Unit) {
+            loading.value = true;
+            Log.v("EditorScreen", settingsViewModel.tokenValue)
+            Log.v("EditorScreen", settingsViewModel.selectedModel.toString())
 
-        if(transitoryMapRecord != null){
+                val requestBuilder = OpenAiRequestBuilder()
+                val stringApiVersion = if(settingsViewModel.selectedModel == 0) "gpt-4-turbo" else "gpt-4o"
 
-            val requestBuilder = OpenAiRequestBuilder()
-            val stringApiVersion = if(settingsViewModel.selectedModel == 0) "gpt-4-turbo" else "gpt-4o"
-
-            requestBuilder.sendOpenAIRequest(
+                requestBuilder.sendOpenAIRequest(
                     settingsViewModel.tokenValue,
                     stringApiVersion,
                     transitoryMapRecord.pictureFileName
-                ){ response ->
-                    if(response != null){
-                        val graph = AiMapDescParserImpl().parseAiMapDesc(response, OpenAiRespRoomAdapter())
+                ) { response ->
+                    if (response != null) {
+                        val graph =
+                            AiMapDescParserImpl().parseAiMapDesc(response, OpenAiRespRoomAdapter())
                         /* Do what we must with the graph */
-                    }
-                    else{
+                    } else {
                         Log.v("OpenAIResponse", "response was null")
                     }
                     loading.value = false;
-            }
-
-//            requestBuilder.testingRequests { response ->
-//                if (response != null) {
-//                    Log.v("APIResponse", response)
-//                } else {
-//                    Log.v("APIResponse", "Response was null")
-//                }
-//                loading.value = false
-//            }
-        }
-        else{
-            Log.v("EditorScreen", "Transitory map record was null")
+                }
         }
     }
 

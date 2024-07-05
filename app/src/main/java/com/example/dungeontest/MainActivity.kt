@@ -135,7 +135,7 @@ fun RootScreen() {
     ) {
         NavHost(navController = navController, startDestination = "MainScreen") {
             composable("MainScreen") {
-                MainScreen(drawerState, scope, navController)
+                MainScreen(drawerState, scope, navController, mapViewModel)
             }
             composable("SettingsScreen") {
                 SettingsScreen(drawerState, scope)
@@ -165,7 +165,7 @@ fun DefaultPreview() {
 }
 
 @Composable
-fun MapDetailsCard(item: MapRecord, modifier: Modifier = Modifier) {
+fun MapDetailsCard(item: MapRecord, modifier: Modifier = Modifier, itemOnClick: (item: MapRecord) -> Unit) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -179,8 +179,8 @@ fun MapDetailsCard(item: MapRecord, modifier: Modifier = Modifier) {
                 .height(60.dp)
                 .clickable(
                 ) {
-
                     //todo Handle item click. Will do later (to load a previously-saved map for visualizing, editing, and/or renaming)
+                    itemOnClick(item)
                 }
         ) {
             Row {
@@ -202,10 +202,10 @@ fun MapDetailsCard(item: MapRecord, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SavedMapEntry(mapDetails: MapRecord, viewModel: MapViewModel, modifier: Modifier = Modifier) {
+fun SavedMapEntry(mapDetails: MapRecord, viewModel: MapViewModel, modifier: Modifier = Modifier, itemOnClick: (item: MapRecord) -> Unit) {
     val context = LocalContext.current
     Row(modifier = modifier) {
-        MapDetailsCard(item = mapDetails, Modifier.weight(0.9f))
+        MapDetailsCard(item = mapDetails, Modifier.weight(0.9f), itemOnClick)
         IconButton(onClick = {
             CoroutineScope(Dispatchers.IO).launch {
                 val deleteResult = viewModel.deleteMap(mapDetails)
