@@ -31,35 +31,6 @@ class OpenAiRequestBuilder {
     /* Probably can adjust this? */
     private val maxTokenCount = 300
 
-    fun testingRequests(callback: (String?) -> Unit){
-        val request = Request.Builder()
-            .url("https://nvgtn.com/products.json")
-            .addHeader("Referer", "https://nvgtn.com/products.json")
-            .get()
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-                callback(null)
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (!response.isSuccessful) {
-                    println("Unexpected code $response")
-                    callback(null)
-                } else {
-                    val responseBody = response.body?.string()
-                    responseBody?.let {
-                        callback(it)
-                    } ?: run {
-                        callback(null)
-                    }
-                }
-            }
-        })
-    }
-
     fun sendOpenAIRequest(apiKey: String, apiVersion: String, imagePath: String, callback: (String?) -> Unit) {
         val imageFile = File(imagePath)
         if (!imageFile.exists()) {
