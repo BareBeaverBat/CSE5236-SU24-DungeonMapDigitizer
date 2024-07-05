@@ -35,13 +35,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.dungeontest.model.MapViewModel
 import com.example.dungeontest.model.MapRecord
+import com.example.dungeontest.model.MapViewModel
 import com.example.dungeontest.ui.theme.DungeonTestTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -94,6 +95,7 @@ fun RootScreen() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
+    val mapViewModel: MapViewModel = viewModel<MapViewModel>()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -142,10 +144,10 @@ fun RootScreen() {
                 arguments = listOf(navArgument("PhotoUri") { type = NavType.StringType })
             ){ backStack ->
                 val photoUri = backStack.arguments?.getString("PhotoUri") ?: ""
-                NamingScreen(drawerState, scope, photoUri, navController)
+                NamingScreen(drawerState, scope, photoUri, navController, mapViewModel)
             }
             composable("EditorScreen") {
-                EditorScreen(drawerState, scope, navController)
+                EditorScreen(drawerState, scope, navController, mapViewModel)
             }
         }
     }
@@ -181,11 +183,15 @@ fun MapDetailsCard(item: MapRecord, modifier: Modifier = Modifier) {
         ) {
             Row {
                 Text(
-                    modifier = Modifier.padding(18.dp).weight(0.5f),
+                    modifier = Modifier
+                        .padding(18.dp)
+                        .weight(0.5f),
                     text = item.mapName
                 )
                 Text(
-                    modifier = Modifier.padding(18.dp).weight(0.5f),
+                    modifier = Modifier
+                        .padding(18.dp)
+                        .weight(0.5f),
                     text = item.pictureFileName.takeLast(20)
                 )
             }
@@ -202,7 +208,8 @@ fun SavedMapEntry(mapDetails: MapRecord, viewModel: MapViewModel, modifier: Modi
                 val deleteResult = viewModel.deleteMap(mapDetails)
                 Log.d("MapDetails", "deleteResult: $deleteResult for map $mapDetails")
             }
-        }, modifier = Modifier.align(Alignment.CenterVertically)
+        }, modifier = Modifier
+            .align(Alignment.CenterVertically)
             .border(2.dp, Color.Red, shape = CircleShape)
             .weight(0.1f)
             ) {

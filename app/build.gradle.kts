@@ -97,6 +97,7 @@ dependencies {
     implementation(libs.okhttp3)
     implementation(libs.coil)
 
+
     // To use Kotlin annotation processing tool (kapt)
     kapt(libs.androidx.room.compiler)
 

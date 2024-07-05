@@ -42,21 +42,20 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.dungeontest.model.MapViewModel
 import com.example.dungeontest.model.MapRecord
+import com.example.dungeontest.model.MapViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedPhotoUri: String, navController: NavController) {
+fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedPhotoUri: String, navController: NavController, viewModel: MapViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
-    val viewModel = viewModel<MapViewModel>()
+//    val viewModel: MapViewModel = viewModel()
 
     val photoUri = String(Base64.decode(base64EncodedPhotoUri, Base64.NO_WRAP), Charsets.UTF_8)
 
@@ -113,10 +112,15 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                                 showDialog.value = true
                             } else {
                                 // Store this value in case we want to check if it actually saved or not
-                                val didSaveMap = viewModel.insertMap(MapRecord(
+
+                                val newMap = MapRecord(
                                     mapName,
                                     photoUri,
-                                ))
+                                )
+
+                                val didSaveMap = viewModel.insertMap(newMap)
+                                Log.v("NamingScreen", "Setting transitory value")
+                                viewModel.transitoryMapRecord = newMap
                                 navController.navigate("EditorScreen")
                             }
                         }
@@ -150,13 +154,16 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                     onClick = {
                         scope.launch {
                             val mapName = mapInputNameVal.value.text
-                            viewModel.updateMap(MapRecord(
+                            val newMap = MapRecord(
                                 mapName,
                                 photoUri,
-                            ))
+                            )
+
+                            val didSaveMap = viewModel.updateMap(newMap)
+                            viewModel.transitoryMapRecord = newMap
                         }
                         showDialog.value = false
-                        navController.navigate("MainScreen")
+                        navController.navigate("EditorScreen")
                     }
                 ) {
                     Text("Confirm")

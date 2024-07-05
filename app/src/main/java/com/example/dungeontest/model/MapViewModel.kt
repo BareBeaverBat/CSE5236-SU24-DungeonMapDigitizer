@@ -7,6 +7,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application)  {
     private val mapRepository: MapRepository = MapRepository(application)
     val allMaps = mapRepository.allMaps
 
+    var transitoryMapRecord: MapRecord? = null
+
     suspend fun insertMap(map: MapRecord) : Long {
         return mapRepository.insertMap(map)
     }

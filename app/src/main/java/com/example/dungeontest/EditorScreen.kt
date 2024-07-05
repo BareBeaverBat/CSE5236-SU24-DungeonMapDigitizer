@@ -1,8 +1,7 @@
 package com.example.dungeontest
 
-import android.graphics.BitmapFactory
+import OpenAiRequestBuilder
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +25,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -40,41 +38,50 @@ import com.example.dungeontest.composables.MapVisualization
 import com.example.dungeontest.composables.MiniFabItems
 import com.example.dungeontest.composables.MultiFloatingActionButton
 import com.example.dungeontest.model.EditorViewModel
+import com.example.dungeontest.model.MapViewModel
 import com.example.dungeontest.model.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController: NavController) {
+fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController: NavController, mapViewModel: MapViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val viewModel = viewModel<EditorViewModel>()
+//    val mapViewModel: MapViewModel = viewModel()
     val settingsViewModel: SettingsViewModel = viewModel<SettingsViewModel>()
 
-    val statusMessage = remember {
-        mutableStateOf<String>("Loading")
-    }
+    val statusMessage = remember { mutableStateOf("Loading") }
+    val graphString = remember { mutableStateOf<String?>(null) }
+    val loading = remember { mutableStateOf(true) }
 
-    val graphString = remember {
-        mutableStateOf<String?>(null)
-    }
-
-    val loading = remember {
-        /* determine launch with loading based on logic regarding graphString */
-        mutableStateOf<Boolean>(false)
-    }
+    val transitoryMapRecord = mapViewModel.transitoryMapRecord
 
     LaunchedEffect(key1 = Unit) {
         Log.v("EditorScreen", settingsViewModel.tokenValue)
         Log.v("EditorScreen", settingsViewModel.selectedModel.toString())
 
+        if(transitoryMapRecord != null){
 
-        loading.value = false
+            val requestBuilder = OpenAiRequestBuilder()
+
+            requestBuilder.testingRequests { response ->
+                if (response != null) {
+                    Log.v("APIResponse", response)
+                } else {
+                    Log.v("APIResponse", "Response was null")
+                }
+                loading.value = false
+            }
+        }
+        else{
+            Log.v("EditorScreen", "Transitory map record was null")
+        }
     }
-    var testDot = viewModel.testDot
+
+    val testDot = viewModel.testDot
 
     if (loading.value) {
         Box(
@@ -131,7 +138,6 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-
                 Column(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -143,4 +149,3 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
         }
     }
 }
-
