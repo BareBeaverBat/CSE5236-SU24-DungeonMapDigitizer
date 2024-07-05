@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
@@ -43,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dungeontest.composables.MapDetailsCard
 import com.example.dungeontest.data.SettingsStorage
@@ -93,8 +93,8 @@ fun MainScreen(
                 val result = GmsDocumentScanningResult.fromActivityResultIntent(it.data)
                 photoUri = result?.pages?.get(0)?.imageUri
                 if (photoUri != null) {
-                    val base64EncodedUri = Base64.encodeToString(photoUri.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
-                    navController.navigate("NamingScreen/$base64EncodedUri") {
+                    val base64EncodedPath = Base64.encodeToString(photoUri!!.path.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+                    navController.navigate("NamingScreen/$base64EncodedPath") {
                         popUpTo("NamingScreen") { inclusive = true }
                     }
                 } else {
@@ -132,6 +132,7 @@ fun MainScreen(
                                 )
                             }
                             .addOnFailureListener{
+                                Log.v("MainScreen", it.toString())
                                 scope.launch {
                                     if (snackbarHostState.currentSnackbarData == null)
                                         snackbarHostState.showSnackbar(
@@ -196,7 +197,10 @@ fun MainScreen(
             ) {
 
                 items(maps.value ?: listOf()) { mapDetails ->
-                    MapDetailsCard(mapDetails,viewModel, mapDetails)
+                    MapDetailsCard(mapDetails,viewModel, mapDetails){
+                        viewModel.transitoryMapRecord = it
+                        navController.navigate("EditorScreen")
+                    }
                 }
             }
         }

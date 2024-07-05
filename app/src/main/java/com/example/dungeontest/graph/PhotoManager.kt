@@ -1,14 +1,12 @@
 package com.example.dungeontest.graph
 
 import android.content.Context
-import android.util.Base64
 import java.io.File
 import java.io.FileOutputStream
 
-fun saveImageToInternalStorage(context: Context, base64Image: String, mapName: String): String? {
+fun saveImageToInternalStorage(context: Context, imageBytes: ByteArray, mapName: String): String? {
     return try {
-        val imageBytes = Base64.decode(base64Image, Base64.DEFAULT)
-        val file = File(context.filesDir, "$mapName-original.jpg")
+        val file = File(context.filesDir, "$mapName-original.jpeg")
         FileOutputStream(file).use { fos ->
             fos.write(imageBytes)
         }
@@ -21,7 +19,7 @@ fun saveImageToInternalStorage(context: Context, base64Image: String, mapName: S
 
 fun deletePhotoFromInternalStorage(context: Context, mapName: String): Boolean? {
     return try {
-        val file = File(context.filesDir, "$mapName-original.jpg")
+        val file = File(context.filesDir, "$mapName-original.jpeg")
         if (file.exists()) {
             file.delete()
         } else {

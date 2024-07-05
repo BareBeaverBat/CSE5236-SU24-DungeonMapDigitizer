@@ -20,6 +20,7 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -52,7 +53,6 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val viewModel = viewModel<EditorViewModel>()
-//    val mapViewModel: MapViewModel = viewModel()
     val settingsViewModel: SettingsViewModel = viewModel<SettingsViewModel>()
 
     val statusMessage = remember { mutableStateOf("Loading") }
@@ -79,11 +79,24 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
                     transitoryMapRecord.pictureFileName
                 ) { response ->
                     if (response != null) {
+                        Log.v("APIResponse", response)
                         val graph =
                             AiMapDescParserImpl().parseAiMapDesc(response, OpenAiRespRoomAdapter())
                         /* Do what we must with the graph */
+
+                        /* get DOT string from graph */
+                        /* set dotString on MapRecord */
+                        /* use mapViewModel to update MapRecord and save */
+                        /* Set graphString.value */
                     } else {
                         Log.v("OpenAIResponse", "response was null")
+                        scope.launch {
+                            if (snackbarHostState.currentSnackbarData == null)
+                                snackbarHostState.showSnackbar(
+                                    "An error occured generating your map.",
+                                    duration = SnackbarDuration.Short
+                                )
+                        }
                     }
                     loading.value = false;
                 }
@@ -152,7 +165,12 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    MapVisualization(testDot)
+                    if(graphString.value != null){
+                        MapVisualization(graphString.value!!)
+                    }
+                    else{
+                        MapVisualization(testDot)
+                    }
                 }
             }
         }

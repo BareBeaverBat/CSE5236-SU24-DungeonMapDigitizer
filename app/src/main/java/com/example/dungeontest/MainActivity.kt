@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -44,11 +45,11 @@ import androidx.navigation.navArgument
 import com.example.dungeontest.graph.deletePhotoFromInternalStorage
 import com.example.dungeontest.model.MapRecord
 import com.example.dungeontest.model.MapViewModel
+import com.example.dungeontest.model.SettingsViewModel
 import com.example.dungeontest.ui.theme.DungeonTestTheme
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
-import androidx.compose.ui.Alignment
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private val TAG = "MainActivity"
@@ -98,6 +99,7 @@ fun RootScreen() {
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
     val mapViewModel: MapViewModel = viewModel<MapViewModel>()
+    val settingsViewModel: SettingsViewModel = viewModel<SettingsViewModel>()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -138,15 +140,15 @@ fun RootScreen() {
                 MainScreen(drawerState, scope, navController, mapViewModel)
             }
             composable("SettingsScreen") {
-                SettingsScreen(drawerState, scope)
+                SettingsScreen(drawerState, scope, settingsViewModel)
             }
 
             composable (
-                "NamingScreen/{PhotoUri}",
-                arguments = listOf(navArgument("PhotoUri") { type = NavType.StringType })
+                "NamingScreen/{PhotoPath}",
+                arguments = listOf(navArgument("PhotoPath") { type = NavType.StringType })
             ){ backStack ->
-                val photoUri = backStack.arguments?.getString("PhotoUri") ?: ""
-                NamingScreen(drawerState, scope, photoUri, navController, mapViewModel)
+                val photoPath = backStack.arguments?.getString("PhotoPath") ?: ""
+                NamingScreen(drawerState, scope, photoPath, navController, mapViewModel)
             }
             composable("EditorScreen") {
                 EditorScreen(drawerState, scope, navController, mapViewModel)
