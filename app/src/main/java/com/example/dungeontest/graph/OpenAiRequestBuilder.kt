@@ -12,6 +12,7 @@ import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 import java.util.Base64
+import java.util.concurrent.TimeUnit
 
 val JSON = "application/json; charset=utf-8".toMediaTypeOrNull()
 class OpenAiRequestBuilder {
@@ -26,10 +27,12 @@ class OpenAiRequestBuilder {
         Third, please make a JSON array describing that graph (root level key for the array is "final_result"), where each entry in the array is a json object containing a) a unique numeric node id (json key "id"), b) the room label from the drawing (json key "name"), and c) the id's of the rooms which it's connected to by hallways (json key "neighbors").
     """.trimIndent()
 
-    private val client = OkHttpClient()
-
+    private val client = OkHttpClient
+        .Builder()
+        .connectTimeout(20, TimeUnit.SECONDS)
+        .build()
     /* Probably can adjust this? */
-    private val maxTokenCount = 300
+    private val maxTokenCount = 3000
 
     fun sendOpenAIRequest(apiKey: String, apiVersion: String, imagePath: String, callback: (String?) -> Unit) {
         val imageFile = File(imagePath)
@@ -40,7 +43,23 @@ class OpenAiRequestBuilder {
         }
 
         val imageBytes = imageFile.readBytes()
+        Log.v("OpenAiRequestBuilder", imageBytes.size.toString())
+        if (imageBytes.size > 20 * 1024 * 1024) {
+            println("Image file is too large: $imagePath")
+            callback(null)
+            return
+        }
+
+        val supportedFormats = listOf("png", "jpeg", "gif", "webp")
+        val fileExtension = imageFile.extension.lowercase()
+        if (fileExtension !in supportedFormats) {
+            println("Unsupported image format: $fileExtension")
+            callback(null)
+            return
+        }
+
         val imageBase64 = Base64.getEncoder().encodeToString(imageBytes)
+        val dataUri = "data:image/$fileExtension;base64,$imageBase64"
 
         val jsonBody = JSONObject().apply {
             put("model", apiVersion)
@@ -49,6 +68,7 @@ class OpenAiRequestBuilder {
             })
             put("messages", JSONArray().apply {
                 put(JSONObject().apply {
+                    put("role", "user")
                     put("content", JSONArray().apply {
                         put(JSONObject().apply {
                             put("type", "text")
@@ -57,7 +77,7 @@ class OpenAiRequestBuilder {
                         put(JSONObject().apply {
                             put("type", "image_url")
                             put("image_url", JSONObject().apply {
-                                put("url", "data:image/jpeg;base64,$imageBase64")
+                                put("url", dataUri)
                             })
                         })
                     })
@@ -66,14 +86,17 @@ class OpenAiRequestBuilder {
             put("max_tokens", maxTokenCount)
         }
 
-        val payload = jsonBody.toString().toRequestBody(JSON)
+        Log.v("RequestBuilder", jsonBody.toString().replace("\\/", "/"))
+
+        val payload = jsonBody.toString().replace("\\/", "/").toRequestBody(JSON)
 
         val request = Request.Builder()
             .url(baseUri)
             .addHeader("Authorization", "Bearer $apiKey")
-            .addHeader("Accept", "application/json")
+            .addHeader("Content-Type", "application/json")
             .post(payload)
             .build()
+
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -83,7 +106,7 @@ class OpenAiRequestBuilder {
 
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
-                    Log.v("OpenAIRequestBuilder", "Unexpected Response Code $response")
+                    Log.v("OpenAIRequestBuilder", "Unexpected Response Code ${response.body?.string()}")
                     callback(null)
                 } else {
                     val responseBody = response.body?.string()

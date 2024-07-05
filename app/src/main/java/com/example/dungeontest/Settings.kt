@@ -68,7 +68,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dungeontest.model.SettingsViewModel
 import com.example.dungeontest.model.cardInfos
 import kotlinx.coroutines.CoroutineScope
@@ -82,8 +81,8 @@ import kotlinx.coroutines.withContext
 fun SettingsScreen(
     drawerState: DrawerState,
     scope: CoroutineScope,
+    viewModel: SettingsViewModel
 ) {
-    val viewModel: SettingsViewModel = viewModel()
     // Remembering state
     val snackbarHostState = remember { SnackbarHostState() }
 

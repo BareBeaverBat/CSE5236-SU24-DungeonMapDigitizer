@@ -49,19 +49,20 @@ import com.example.dungeontest.model.MapRecord
 import com.example.dungeontest.model.MapViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.io.File
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedPhotoUri: String, navController: NavController, viewModel: MapViewModel) {
+fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedPhotoPath: String, navController: NavController, viewModel: MapViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
-    val photoUri = URLDecoder.decode(String(Base64.decode(base64EncodedPhotoUri, Base64.NO_WRAP), Charsets.UTF_8), StandardCharsets.UTF_8.toString())
+    val photoPath = URLDecoder.decode(String(Base64.decode(base64EncodedPhotoPath, Base64.NO_WRAP), Charsets.UTF_8), StandardCharsets.UTF_8.toString())
 
     val context = LocalContext.current
 
@@ -73,7 +74,6 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
         mutableStateOf(false)
     }
 
-    Log.v("NamingScreen", photoUri)
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
@@ -117,7 +117,11 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                             if (exists) {
                                 showDialog.value = true
                             } else {
-                                val imagePath = saveImageToInternalStorage(context = context, base64Image = base64EncodedPhotoUri, mapName = mapName)
+                                Log.v("NamingScreen", photoPath)
+                                val file = File(photoPath)
+                                val imageBytes = file.readBytes()
+                                val imagePath = saveImageToInternalStorage(context = context, imageBytes = imageBytes, mapName = mapName)
+
                                 Log.v("NamingScreen", imagePath.toString())
                                 if (imagePath != null) {
                                     val newMap = MapRecord(
@@ -164,7 +168,9 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                     onClick = {
                         scope.launch {
                             val mapName = mapInputNameVal.value.text
-                            val imagePath = saveImageToInternalStorage(context = context, base64Image = base64EncodedPhotoUri, mapName = mapName)
+                            val file = File(photoPath)
+                            val imageBytes = file.readBytes()
+                            val imagePath = saveImageToInternalStorage(context = context, imageBytes = imageBytes, mapName = mapName)
                             Log.v("NamingScreen", imagePath.toString())
                             if (imagePath != null) {
                                 val newMap = MapRecord(

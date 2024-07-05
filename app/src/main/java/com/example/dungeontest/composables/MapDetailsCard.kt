@@ -15,7 +15,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.dungeontest.graph.deletePhotoFromInternalStorage
 import com.example.dungeontest.model.MapRecord
 import com.example.dungeontest.model.MapViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +27,9 @@ import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 
 @Composable
-fun MapDetailsCard(item: MapRecord, viewModel: MapViewModel, mapDetails: MapRecord) {
+fun MapDetailsCard(item: MapRecord, viewModel: MapViewModel, mapDetails: MapRecord, itemCallback: (map: MapRecord) -> Unit) {
+    val context = LocalContext.current
+
     // Delete action
     val delete = SwipeAction(
         icon = rememberVectorPainter(Icons.TwoTone.Delete),
@@ -33,6 +37,7 @@ fun MapDetailsCard(item: MapRecord, viewModel: MapViewModel, mapDetails: MapReco
         onSwipe = {
             CoroutineScope(Dispatchers.IO).launch {
                 val deleteResult = viewModel.deleteMap(mapDetails)
+                deletePhotoFromInternalStorage(context, mapDetails.mapName)
                 Log.d("MapDetails", "deleteResult: $deleteResult for map $mapDetails")
             }
         }
@@ -53,6 +58,7 @@ fun MapDetailsCard(item: MapRecord, viewModel: MapViewModel, mapDetails: MapReco
                 modifier = Modifier
                     .height(60.dp)
                     .clickable {
+                        itemCallback(item)
                         //todo Handle item click. Will do later (to load a previously-saved map for visualizing, editing, and/or renaming)
                     }
             ) {
@@ -65,9 +71,9 @@ fun MapDetailsCard(item: MapRecord, viewModel: MapViewModel, mapDetails: MapReco
                     )
                     Text(
                         modifier = Modifier
-                            .padding(18.dp)
+                            .padding(5.dp,18.dp)
                             .weight(0.5f),
-                        text = item.pictureFileName.takeLast(10)
+                        text = item.pictureFileName.takeLast(20)
                     )
                 }
 

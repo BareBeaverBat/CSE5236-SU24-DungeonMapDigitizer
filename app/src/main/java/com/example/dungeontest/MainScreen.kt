@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
@@ -43,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dungeontest.composables.MapDetailsCard
 import com.example.dungeontest.data.SettingsStorage
@@ -56,6 +56,7 @@ import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.io.File
 
 
 @SuppressLint("RememberReturnType")
@@ -69,7 +70,6 @@ fun MainScreen(
 ) {
     val context = LocalContext.current
     val preferences = SettingsStorage(context)
-    val viewModel = viewModel<MapViewModel>()
 
     val options = remember {
         GmsDocumentScannerOptions.Builder()
@@ -93,8 +93,8 @@ fun MainScreen(
                 val result = GmsDocumentScanningResult.fromActivityResultIntent(it.data)
                 photoUri = result?.pages?.get(0)?.imageUri
                 if (photoUri != null) {
-                    val base64EncodedUri = Base64.encodeToString(photoUri.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
-                    navController.navigate("NamingScreen/$base64EncodedUri") {
+                    val base64EncodedPath = Base64.encodeToString(photoUri!!.path.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+                    navController.navigate("NamingScreen/$base64EncodedPath") {
                         popUpTo("NamingScreen") { inclusive = true }
                     }
                 } else {
@@ -132,6 +132,7 @@ fun MainScreen(
                                 )
                             }
                             .addOnFailureListener{
+                                Log.v("MainScreen", it.toString())
                                 scope.launch {
                                     if (snackbarHostState.currentSnackbarData == null)
                                         snackbarHostState.showSnackbar(
@@ -196,9 +197,20 @@ fun MainScreen(
             ) {
 
                 items(maps.value ?: listOf()) { mapDetails ->
-                    MapDetailsCard(mapDetails,viewModel, mapDetails)
+                    MapDetailsCard(mapDetails,viewModel, mapDetails){
+                        viewModel.transitoryMapRecord = it
+                        navController.navigate("EditorScreen")
+                    }
                 }
             }
         }
     }
+}
+
+fun createImageFileUri(context: Context): Uri {
+    val imagePath = File(context.getExternalFilesDir(null), "images")
+    imagePath.mkdirs()
+    //todo need to make uuid instead of hardcoded name 'photo'?
+    val imageFile = File(imagePath, "photo.jpg")
+    return FileProvider.getUriForFile(context, "${context.packageName}.file provider", imageFile)
 }
