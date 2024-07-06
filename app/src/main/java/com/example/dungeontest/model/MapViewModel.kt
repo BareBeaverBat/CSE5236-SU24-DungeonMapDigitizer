@@ -1,13 +1,16 @@
 package com.example.dungeontest.model
 
 import android.app.Application
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 
 class MapViewModel(application: Application) : AndroidViewModel(application)  {
     private val mapRepository: MapRepository = MapRepository(application)
     val allMaps = mapRepository.allMaps
 
-    var transitoryMapRecord: MapRecord? = null
+    var transitoryMapRecord by mutableStateOf<MapRecord?>(null)
 
     suspend fun insertMap(map: MapRecord) : Long {
         return mapRepository.insertMap(map)
