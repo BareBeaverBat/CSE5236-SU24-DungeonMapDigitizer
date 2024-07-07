@@ -58,6 +58,7 @@ import java.nio.charset.StandardCharsets
 @Composable
 fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedPhotoPath: String, navController: NavController, viewModel: MapViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
+    val TAG = "NamingScreen"
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -117,12 +118,12 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                             if (exists) {
                                 showDialog.value = true
                             } else {
-                                Log.v("NamingScreen", photoPath)
+                                Log.v(TAG, photoPath)
                                 val file = File(photoPath)
                                 val imageBytes = file.readBytes()
                                 val imagePath = saveImageToInternalStorage(context = context, imageBytes = imageBytes, mapName = mapName)
 
-                                Log.v("NamingScreen", imagePath.toString())
+                                Log.v(TAG, imagePath.toString())
                                 if (imagePath != null) {
                                     val newMap = MapRecord(
                                         mapName,
@@ -171,7 +172,7 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                             val file = File(photoPath)
                             val imageBytes = file.readBytes()
                             val imagePath = saveImageToInternalStorage(context = context, imageBytes = imageBytes, mapName = mapName)
-                            Log.v("NamingScreen", imagePath.toString())
+                            Log.v(TAG, imagePath.toString())
                             if (imagePath != null) {
                                 val newMap = MapRecord(
                                     mapName,
@@ -183,9 +184,9 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                             } else {
                                 snackbarHostState.showSnackbar("Failed to save image.")
                             }
+                            showDialog.value = false
+                            navController.navigate("EditorScreen")
                         }
-                        showDialog.value = false
-                        navController.navigate("EditorScreen")
                     }
                 ) {
                     Text("Confirm")

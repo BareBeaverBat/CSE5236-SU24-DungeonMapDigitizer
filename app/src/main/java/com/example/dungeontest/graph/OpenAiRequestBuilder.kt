@@ -27,6 +27,8 @@ class OpenAiRequestBuilder {
         Third, please make a JSON array describing that graph (root level key for the array is "final_result"), where each entry in the array is a json object containing a) a unique numeric node id (json key "id"), b) the room label from the drawing (json key "label"), and c) the id's of the rooms which it's connected to by hallways (json key "neighbors").
     """.trimIndent()
 
+    val TAG = "OpenAiRequestBuilder"
+
     private val client = OkHttpClient
         .Builder()
         .connectTimeout(40, TimeUnit.SECONDS)
@@ -46,7 +48,7 @@ class OpenAiRequestBuilder {
         val imageBytes = imageFile.readBytes()
         Log.v("OpenAiRequestBuilder", imageBytes.size.toString())
         if (imageBytes.size > 20 * 1024 * 1024) {
-            println("Image file is too large: $imagePath")
+            Log.v(TAG, "Image file is too large: $imagePath")
             callback(null)
             return
         }
@@ -54,7 +56,7 @@ class OpenAiRequestBuilder {
         val supportedFormats = listOf("png", "jpeg", "gif", "webp")
         val fileExtension = imageFile.extension.lowercase()
         if (fileExtension !in supportedFormats) {
-            println("Unsupported image format: $fileExtension")
+            Log.v(TAG, "Unsupported image format: $fileExtension")
             callback(null)
             return
         }
@@ -87,7 +89,7 @@ class OpenAiRequestBuilder {
             put("max_tokens", maxTokenCount)
         }
 
-        Log.v("RequestBuilder", jsonBody.toString().replace("\\/", "/"))
+        Log.v(TAG, jsonBody.toString().replace("\\/", "/"))
 
         val payload = jsonBody.toString().replace("\\/", "/").toRequestBody(JSON)
 
@@ -107,7 +109,7 @@ class OpenAiRequestBuilder {
 
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
-                    Log.v("OpenAIRequestBuilder", "Unexpected Response Code ${response.body?.string()}")
+                    Log.v(TAG, "Unexpected Response Code ${response.body?.string()}")
                     callback(null)
                 } else {
                     val responseBody = response.body?.string()
