@@ -171,8 +171,8 @@ fun EditorScreen(drawerState: DrawerState, scope: CoroutineScope, navController:
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    if(mapViewModel.transitoryMapRecord!!.dotString != null){
-                        MapVisualization(mapViewModel.transitoryMapRecord!!.dotString!!)
+                    mapViewModel.transitoryMapRecord!!.dotString?.let {
+                        MapVisualization(dotAsString = it)
                     }
                 }
             }
