@@ -98,6 +98,8 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.saketSwipe)
     implementation(libs.mlkitscanner)
+    implementation(libs.lottie)
+
 
     // To use Kotlin annotation processing tool (kapt)
     kapt(libs.androidx.room.compiler)

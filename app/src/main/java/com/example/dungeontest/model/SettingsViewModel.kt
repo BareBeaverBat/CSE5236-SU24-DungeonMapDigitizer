@@ -1,13 +1,10 @@
 package com.example.dungeontest.model
 
 import android.app.Application
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dungeontest.data.SettingsStorage
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class SettingsViewModel( application: Application): AndroidViewModel(application) {
@@ -45,6 +42,15 @@ class SettingsViewModel( application: Application): AndroidViewModel(application
         viewModelScope.launch {
             settingsStorage.saveSelectedModel(modelId)
         }
+    }
+
+    // functions below to be called from anywhere else in the app that isn't the settings screen.
+    suspend fun getToken(): String {
+        return settingsStorage.getAccessToken.first()
+    }
+
+    suspend fun getSelectedModel(): Int {
+        return settingsStorage.getSelectedModel.first()
     }
 
 }

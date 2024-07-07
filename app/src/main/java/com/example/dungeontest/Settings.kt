@@ -83,7 +83,7 @@ fun SettingsScreen(
     drawerState: DrawerState,
     scope: CoroutineScope,
 ) {
-    val viewModel: SettingsViewModel = viewModel()
+    val viewModel: SettingsViewModel = viewModel<SettingsViewModel>()
     // Remembering state
     val snackbarHostState = remember { SnackbarHostState() }
 

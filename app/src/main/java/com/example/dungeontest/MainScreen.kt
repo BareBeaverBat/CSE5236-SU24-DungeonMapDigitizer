@@ -45,8 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dungeontest.composables.MapDetailsCard
-import com.example.dungeontest.data.SettingsStorage
 import com.example.dungeontest.model.MapViewModel
+import com.example.dungeontest.model.SettingsViewModel
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.RESULT_FORMAT_JPEG
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.SCANNER_MODE_FULL
@@ -62,12 +62,12 @@ import kotlinx.coroutines.launch
 fun MainScreen(
     drawerState: DrawerState,
     scope: CoroutineScope,
-    navController: NavController
+    navController: NavController,
+    viewModel: MapViewModel
 ) {
     val context = LocalContext.current
-    val preferences = SettingsStorage(context)
-    val viewModel = viewModel<MapViewModel>()
-    
+    val settingsViewModel: SettingsViewModel = viewModel<SettingsViewModel>()
+
     val options = remember {
         GmsDocumentScannerOptions.Builder()
             .setGalleryImportAllowed(true)
@@ -90,8 +90,8 @@ fun MainScreen(
                 val result = GmsDocumentScanningResult.fromActivityResultIntent(it.data)
                 photoUri = result?.pages?.get(0)?.imageUri
                 if (photoUri != null) {
-                    val base64EncodedUri = Base64.encodeToString(photoUri.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
-                    navController.navigate("NamingScreen/$base64EncodedUri") {
+                    val base64EncodedPath = Base64.encodeToString(photoUri!!.path.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+                    navController.navigate("NamingScreen/$base64EncodedPath") {
                         popUpTo("NamingScreen") { inclusive = true }
                     }
                 } else {
@@ -103,7 +103,7 @@ fun MainScreen(
         }
     )
 
-    
+
     val maps = viewModel.allMaps.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -113,8 +113,7 @@ fun MainScreen(
     ) { isGranted ->
         if (isGranted) {
             scope.launch {
-                preferences.getAccessToken.collect { token ->
-                    if (token.isEmpty()) {
+                    if (settingsViewModel.getToken().isEmpty()) {
                         if (snackbarHostState.currentSnackbarData == null)
                                 snackbarHostState.showSnackbar(
                                     "API Key is required to proceed.",
@@ -128,6 +127,7 @@ fun MainScreen(
                                 )
                             }
                             .addOnFailureListener{
+                                Log.v("MainScreen", it.toString())
                                 scope.launch {
                                     if (snackbarHostState.currentSnackbarData == null)
                                         snackbarHostState.showSnackbar(
@@ -138,7 +138,7 @@ fun MainScreen(
                                 Log.d("MainScreen", "Error triggered at scanner.getStartScanIntent()")
                             }
                     }
-                }
+
             }
 
         } else {
@@ -192,9 +192,13 @@ fun MainScreen(
             ) {
 
                 items(maps.value ?: listOf()) { mapDetails ->
-                    MapDetailsCard(mapDetails,viewModel, mapDetails)
+                    MapDetailsCard(mapDetails,viewModel, mapDetails){
+                        viewModel.transitoryMapRecord = it
+                        navController.navigate("EditorScreen")
+                    }
                 }
             }
         }
     }
 }
+

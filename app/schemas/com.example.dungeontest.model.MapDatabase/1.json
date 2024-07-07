@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "301f73ae3f08006ef89443692b937e69",
+    "identityHash": "62061ae679539e46ae04bf74234c72d9",
     "entities": [
       {
         "tableName": "maps",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`map_name` TEXT NOT NULL, `picture_file_name` TEXT NOT NULL, PRIMARY KEY(`map_name`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`map_name` TEXT NOT NULL, `picture_file_name` TEXT NOT NULL, `dot_string` TEXT, PRIMARY KEY(`map_name`))",
         "fields": [
           {
             "fieldPath": "mapName",
@@ -19,6 +19,12 @@
             "columnName": "picture_file_name",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "dotString",
+            "columnName": "dot_string",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -34,7 +40,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '301f73ae3f08006ef89443692b937e69')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '62061ae679539e46ae04bf74234c72d9')"
     ]
   }
 }

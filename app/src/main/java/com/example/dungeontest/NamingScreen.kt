@@ -37,28 +37,35 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.dungeontest.model.MapViewModel
+import com.example.dungeontest.graph.saveImageToInternalStorage
 import com.example.dungeontest.model.MapRecord
+import com.example.dungeontest.model.MapViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.io.File
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedPhotoUri: String, navController: NavController) {
+fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedPhotoPath: String, navController: NavController, viewModel: MapViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
+    val TAG = "NamingScreen"
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
-    val viewModel = viewModel<MapViewModel>()
 
-    val photoUri = String(Base64.decode(base64EncodedPhotoUri, Base64.NO_WRAP), Charsets.UTF_8)
+    val photoPath = URLDecoder.decode(String(Base64.decode(base64EncodedPhotoPath, Base64.NO_WRAP), Charsets.UTF_8), StandardCharsets.UTF_8.toString())
+
+    val context = LocalContext.current
 
     val mapInputNameVal = remember {
         mutableStateOf(TextFieldValue())
@@ -68,7 +75,6 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
         mutableStateOf(false)
     }
 
-    Log.v("NamingScreen", photoUri)
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
@@ -101,31 +107,44 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                 modifier = Modifier.fillMaxSize()
             ) {
                 Spacer(modifier = Modifier.height(2.dp))
-                TextInputField(mapInputNameVal,"Map Name")
+                TextInputField(mapInputNameVal, "Map Name")
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     onClick = {
-                        Log.v("SaveButton", "button clicked")
+                        Log.v("NextButton", "button clicked")
                         scope.launch {
                             val mapName = mapInputNameVal.value.text
                             val exists = viewModel.mapExists(mapName)
                             if (exists) {
                                 showDialog.value = true
                             } else {
-                                // Store this value in case we want to check if it actually saved or not
-                                val didSaveMap = viewModel.insertMap(MapRecord(
-                                    mapName,
-                                    photoUri,
-                                ))
-                                navController.navigate("EditorScreen")
+                                Log.v(TAG, photoPath)
+                                val file = File(photoPath)
+                                val imageBytes = file.readBytes()
+                                val imagePath = saveImageToInternalStorage(context = context, imageBytes = imageBytes, mapName = mapName)
+
+                                Log.v(TAG, imagePath.toString())
+                                if (imagePath != null) {
+                                    val newMap = MapRecord(
+                                        mapName,
+                                        imagePath.toString(),
+                                        null
+                                    )
+                                    val didSaveMap = viewModel.insertMap(newMap)
+                                    Log.v("NamingScreen", "Setting transitory value")
+                                    viewModel.transitoryMapRecord = newMap
+                                    navController.navigate("EditorScreen")
+                                } else {
+                                    snackbarHostState.showSnackbar("Failed to save image.")
+                                }
                             }
                         }
-                      },
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 10.dp, vertical = 10.dp)
                 ) {
-                    Text("Save")
+                    Text("Continue")
                 }
             }
         }
@@ -150,13 +169,24 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                     onClick = {
                         scope.launch {
                             val mapName = mapInputNameVal.value.text
-                            viewModel.updateMap(MapRecord(
-                                mapName,
-                                photoUri,
-                            ))
+                            val file = File(photoPath)
+                            val imageBytes = file.readBytes()
+                            val imagePath = saveImageToInternalStorage(context = context, imageBytes = imageBytes, mapName = mapName)
+                            Log.v(TAG, imagePath.toString())
+                            if (imagePath != null) {
+                                val newMap = MapRecord(
+                                    mapName,
+                                    imagePath.toString(),
+                                    null
+                                )
+                                val didSaveMap = viewModel.updateMap(newMap)
+                                viewModel.transitoryMapRecord = newMap
+                            } else {
+                                snackbarHostState.showSnackbar("Failed to save image.")
+                            }
+                            showDialog.value = false
+                            navController.navigate("EditorScreen")
                         }
-                        showDialog.value = false
-                        navController.navigate("MainScreen")
                     }
                 ) {
                     Text("Confirm")
@@ -174,6 +204,7 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
         )
     }
 }
+
 
 @Composable
 private fun TextInputField(tokenValue: MutableState<TextFieldValue>, labelText: String) {
