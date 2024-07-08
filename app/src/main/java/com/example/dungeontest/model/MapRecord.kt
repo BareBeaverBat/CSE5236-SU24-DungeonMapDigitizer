@@ -8,5 +8,5 @@ import androidx.room.PrimaryKey
 data class MapRecord(
     @PrimaryKey @ColumnInfo(name = "map_name") val mapName: String,
     @ColumnInfo(name = "picture_file_name") val pictureFileName: String,
-    @ColumnInfo(name = "dot_string") var dotString: String?,
+    @ColumnInfo(name = "dot_string") val dotString: String?,
 )
