@@ -130,7 +130,6 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                                         imagePath.toString(),
                                         null
                                     )
-                                    val didSaveMap = viewModel.insertMap(newMap)
                                     Log.v("NamingScreen", "Setting transitory value")
                                     viewModel.transitoryMapRecord = newMap
                                     navController.navigate("EditorScreen")
@@ -179,7 +178,6 @@ fun NamingScreen(drawerState: DrawerState, scope: CoroutineScope, base64EncodedP
                                     imagePath.toString(),
                                     null
                                 )
-                                val didSaveMap = viewModel.updateMap(newMap)
                                 viewModel.transitoryMapRecord = newMap
                             } else {
                                 snackbarHostState.showSnackbar("Failed to save image.")

@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
@@ -35,7 +34,6 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
@@ -45,7 +43,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -55,8 +52,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -65,10 +60,10 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.dungeontest.composables.TextInputField
 import com.example.dungeontest.model.SettingsViewModel
 import com.example.dungeontest.model.cardInfos
 import kotlinx.coroutines.CoroutineScope
@@ -195,49 +190,6 @@ fun SettingsScreen(
 
         }
     }
-}
-
-@Composable
-private fun TextInputField(tokenValueState: String, tokenValueInput: MutableState<String?>, labelText: String) {
-    val maxLength = 40
-    val aiEsqueColors = listOf(
-        Color(0xFF607D8B),
-        Color(0xFF3F51B5),
-        Color(0xFF2196F3),
-        Color(0xFF03A9F4),
-        Color(0xFF00BCD4),
-        Color(0xFF009688),
-        Color(0xFF4CAF50),
-        Color(0xFF8BC34A)
-    )
-    val brush = remember {
-        Brush.linearGradient(
-            colors = aiEsqueColors
-        )
-    }
-    val textField = FocusRequester()
-    val focusManager = LocalFocusManager.current
-    val textFieldWidth = (maxLength * 8).dp
-    OutlinedTextField(
-        value = tokenValueInput.value ?: tokenValueState,
-        onValueChange = {newValue ->
-            tokenValueInput.value = newValue
-        },
-
-        modifier = Modifier
-            .focusRequester(textField)
-            .width(textFieldWidth),
-        singleLine = true,
-        shape = MaterialTheme.shapes.large,
-        textStyle = TextStyle(brush = brush),
-        label = { Text(labelText) },
-        keyboardActions = KeyboardActions(
-            onDone = {
-                focusManager.clearFocus()
-            }
-        ),
-
-    )
 }
 
 
