@@ -139,6 +139,13 @@ fun EditorScreen(
             }
         }
     }
+    else{
+        /* build the graph object from the dotString parse */
+        mapDotString.value = mapViewModel.transitoryMapRecord!!.dotString
+
+        /* build the graph object from the DOT string */
+        mapGraph.value = GraphParser().dotToGraph(mapViewModel.transitoryMapRecord!!.dotString!!)
+    }
 
     when (renderMode.value) {
         EditorScreenRenderModes.LOADING_OVERLAY -> {
@@ -172,9 +179,15 @@ fun EditorScreen(
                     val items = listOf(
                         MiniFabItems(Icons.Filled.Check, "Save", onClick = {
 
-
-                            //todo!
-                            //onClick logic goes here
+                            scope.launch {
+                                val exists = mapViewModel.mapExists(mapViewModel.transitoryMapRecord!!.mapName)
+                                if (exists) {
+                                    mapViewModel.updateMap(mapViewModel.transitoryMapRecord!!)
+                                } else {
+                                    mapViewModel.insertMap(mapViewModel.transitoryMapRecord!!)
+                                }
+                                navController.navigate("MainScreen")
+                            }
                         }),
                         MiniFabItems(Icons.Filled.Edit, "Rename Node", onClick = {
                             renderMode.value = EditorScreenRenderModes.RENAME_NODE
