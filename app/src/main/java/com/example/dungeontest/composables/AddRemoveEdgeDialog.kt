@@ -1,21 +1,34 @@
 package com.example.dungeontest.composables
 
 import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.Dialog
 import com.example.dungeontest.graph.MapRoom
 import org.jgrapht.Graph
@@ -46,6 +59,16 @@ fun AddRemoveEdgeDialog(
         ) {
             val isFirstNodesExpanded = remember { mutableStateOf(false) }
             val isSecondNodesExpanded = remember { mutableStateOf(false) }
+
+            val firstNodesDropdownIcon = if (isFirstNodesExpanded.value)
+                Icons.Filled.KeyboardArrowUp
+            else
+                Icons.Filled.KeyboardArrowDown
+            val secondNodesDropdownIcon = if (isSecondNodesExpanded.value)
+                Icons.Filled.KeyboardArrowUp
+            else
+                Icons.Filled.KeyboardArrowDown
+
 
             val isReadyToConfirm = remember { mutableStateOf(false) }
 
@@ -87,28 +110,76 @@ fun AddRemoveEdgeDialog(
             }
 
 
-            //!!todo fix dropdown
-            Text(text = "First Room", modifier = Modifier)
-            DropdownMenu(
-                expanded = isFirstNodesExpanded.value,
-                onDismissRequest = { isFirstNodesExpanded.value = false }) {
-                possibleFirstNodes.value.forEach {
-                    DropdownMenuItem(
-                        text = { it.label }, onClick = { selectedFirstNode.value = it })
+            val dialogWidth = remember { mutableFloatStateOf(0f) }
+
+            //todo before checkpoint 6, explore making a composable to reduce code duplication
+            // around dropdowns of MapRooms
+            //start of dropdown for selecting first node (out of the two nodes that currently do
+            // or don't have an edge between them)
+            Box {
+                OutlinedTextField(value = selectedFirstNode.value?.label ?: "?",
+                    onValueChange = { selectedText ->
+                        selectedFirstNode.value =
+                            possibleFirstNodes.value.firstOrNull { it.label == selectedText }
+                    }, label = { Text("First Room") }, trailingIcon = {
+                        Icon(firstNodesDropdownIcon,
+                            "button to ${if (isFirstNodesExpanded.value) "collapse" else "expand"} list of candidates for the first node",
+                            Modifier.clickable { isFirstNodesExpanded.value = !isFirstNodesExpanded.value })
+                    }, modifier = Modifier
+                        .fillMaxWidth()
+                        .onGloballyPositioned { coords ->
+                            dialogWidth.floatValue = coords.size.toSize().width
+                        }
+                )
+
+                DropdownMenu(
+                    expanded = isFirstNodesExpanded.value,
+                    onDismissRequest = { isFirstNodesExpanded.value = false },
+                    modifier = Modifier.width(with(LocalDensity.current) { dialogWidth.floatValue.toDp() })
+                ) {
+                    possibleFirstNodes.value.forEach {
+                        DropdownMenuItem(
+                            text = { Text(it.label) },
+                            onClick = {
+                                selectedFirstNode.value = it
+                                isFirstNodesExpanded.value = false
+                            })
+                    }
                 }
             }
 
 
-            //!!todo fix dropdown
-            Text(text = "Second Room", modifier = Modifier)
-            DropdownMenu(
-                expanded = isSecondNodesExpanded.value,
-                onDismissRequest = { isSecondNodesExpanded.value = false }) {
-                possibleSecondNodes.value.forEach {
-                    DropdownMenuItem(
-                        text = { it.label }, onClick = { selectedSecondNode.value = it })
+            //start of dropdown for selecting the second node
+            Box {
+                OutlinedTextField(value = selectedSecondNode.value?.label ?: "?",
+                    onValueChange = { selectedText ->
+                        selectedSecondNode.value =
+                            possibleSecondNodes.value.firstOrNull { it.label == selectedText }
+                    }, label = { Text("Second Room") }, trailingIcon = {
+                        Icon(secondNodesDropdownIcon,
+                            "button to ${if (isSecondNodesExpanded.value) "collapse" else "expand"} list of candidates for the second node",
+                            Modifier.clickable { isSecondNodesExpanded.value = !isSecondNodesExpanded.value })
+                    }, modifier = Modifier
+                        .fillMaxWidth()
+                        //relying on the OutlinedTextField from the first dropdown to populate dialogWidth
+                )
+
+                DropdownMenu(
+                    expanded = isSecondNodesExpanded.value,
+                    onDismissRequest = { isSecondNodesExpanded.value = false },
+                    modifier = Modifier.width(with(LocalDensity.current) { dialogWidth.floatValue.toDp() })
+                ) {
+                    possibleSecondNodes.value.forEach {
+                        DropdownMenuItem(
+                            text = { Text(it.label) },
+                            onClick = {
+                                selectedSecondNode.value = it
+                                isSecondNodesExpanded.value = false
+                            })
+                    }
                 }
             }
+            
 
 
             Button(enabled = isReadyToConfirm.value,

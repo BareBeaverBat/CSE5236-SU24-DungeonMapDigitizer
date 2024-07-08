@@ -81,8 +81,7 @@ fun RenameNodeDialog(
 
             Box {
                 OutlinedTextField(value = selectedNode.value?.label ?: "?",
-                    onValueChange = {
-                        val selectedText = it
+                    onValueChange = { selectedText ->
                         selectedNode.value =
                             possibleNodes.value.firstOrNull { it.label == selectedText }
                     }, label = { Text("Room to rename") }, trailingIcon = {
@@ -104,7 +103,11 @@ fun RenameNodeDialog(
                     possibleNodes.value.forEach {
                         DropdownMenuItem(
                             text = { Text(it.label) },
-                            onClick = { selectedNode.value = it })
+                            onClick = {
+                                selectedNode.value = it
+                                newRoomName.value = it.label
+                                isNodesExpanded.value = false
+                            })
                     }
                 }
             }
