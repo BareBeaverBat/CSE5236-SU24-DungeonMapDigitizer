@@ -20,11 +20,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -77,28 +77,34 @@ fun RenameNodeDialog(
                         (newRoomName.value?.isNotBlank() ?: false)
             }
 
-            //todo rename this once I better understand what it's doing
-            val textFieldSize = remember { mutableStateOf(Size.Zero)}
+            val dialogWidth = remember { mutableFloatStateOf(0f) }
 
             Box {
                 OutlinedTextField(value = selectedNode.value?.label ?: "?",
                     onValueChange = {
                         val selectedText = it
-                        selectedNode.value = possibleNodes.value.firstOrNull { it.label == selectedText}
-                    }, label={Text("Room to rename")}, trailingIcon = {
-                        Icon(nodesDropdownIcon, "button to ${if(isNodesExpanded.value) "collapse" else "expand"} list of nodes",
+                        selectedNode.value =
+                            possibleNodes.value.firstOrNull { it.label == selectedText }
+                    }, label = { Text("Room to rename") }, trailingIcon = {
+                        Icon(nodesDropdownIcon,
+                            "button to ${if (isNodesExpanded.value) "collapse" else "expand"} list of nodes",
                             Modifier.clickable { isNodesExpanded.value = !isNodesExpanded.value })
-                    }, modifier = Modifier.fillMaxWidth().onGloballyPositioned { coords ->
-                        textFieldSize.value = coords.size.toSize()
-                    }
+                    }, modifier = Modifier
+                        .fillMaxWidth()
+                        .onGloballyPositioned { coords ->
+                            dialogWidth.floatValue = coords.size.toSize().width
+                        }
                 )
 
                 DropdownMenu(
                     expanded = isNodesExpanded.value,
                     onDismissRequest = { isNodesExpanded.value = false },
-                    modifier = Modifier.width(with(LocalDensity.current){textFieldSize.value.width.toDp()})) {
+                    modifier = Modifier.width(with(LocalDensity.current) { dialogWidth.floatValue.toDp() })
+                ) {
                     possibleNodes.value.forEach {
-                        DropdownMenuItem(text= {Text(it.label)}, onClick = { selectedNode.value = it })
+                        DropdownMenuItem(
+                            text = { Text(it.label) },
+                            onClick = { selectedNode.value = it })
                     }
                 }
             }
@@ -107,22 +113,9 @@ fun RenameNodeDialog(
 
             Button(enabled = isReadyToConfirm.value,
                 onClick = {
-                    val roomToRename = selectedNode.value!!
-
-                    //todo per Nick, see if I can override hashcode/equals in MapRoom to only rely on id field, then make label a var??
-                    // then this becomes easy/quick rather than hard/wasteful
-
-                    //flagging next 10 lines as a possible area to check during performance optimization
-                    val neighborsOfRenamedRoom = currGraphState.value!!.vertexSet().filter {
-                        currGraphState.value!!.containsEdge(roomToRename, it)
-                    }
-                    currGraphState.value!!.removeVertex(roomToRename)
-
-                    val renamedRoom = roomToRename.copy(label = newRoomName.value!!)
-                    currGraphState.value!!.addVertex(renamedRoom)
-                    neighborsOfRenamedRoom.forEach {
-                        currGraphState.value!!.addEdge(renamedRoom, it)
-                    }
+                    //the enabled check of isReadyToConfirm should prevent newRoomName.value from
+                    // being null here
+                    selectedNode.value!!.label = newRoomName.value ?: "!!!ERROR- INVALID ROOM NAME"
 
                     finalizeGraphEdit(currGraphState.value!!)
                     onDismissRequest()

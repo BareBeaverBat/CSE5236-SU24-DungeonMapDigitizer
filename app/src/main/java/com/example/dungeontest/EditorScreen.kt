@@ -40,21 +40,21 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dungeontest.composables.AddRemoveEdgeDialog
+import com.example.dungeontest.composables.LoadingOverlay
 import com.example.dungeontest.composables.MapVisualization
 import com.example.dungeontest.composables.MiniFabItems
 import com.example.dungeontest.composables.MultiFloatingActionButton
+import com.example.dungeontest.composables.RenameNodeDialog
 import com.example.dungeontest.graph.AiMapDescParserImpl
+import com.example.dungeontest.graph.GraphParser
+import com.example.dungeontest.graph.MapRoom
 import com.example.dungeontest.graph.OpenAiRespRoomAdapter
 import com.example.dungeontest.model.MapViewModel
 import com.example.dungeontest.model.SettingsViewModel
+import com.example.dungeontest.model.cardInfos
+import com.example.dungeontest.ui.EditorScreenRenderModes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import com.example.dungeontest.model.cardInfos
-import com.example.dungeontest.graph.GraphParser
-import com.example.dungeontest.composables.LoadingOverlay
-import com.example.dungeontest.composables.RenameNodeDialog
-import com.example.dungeontest.graph.MapRoom
-import com.example.dungeontest.ui.EditorScreenRenderModes
 import org.jgrapht.Graph
 import org.jgrapht.graph.DefaultEdge
 
@@ -118,10 +118,9 @@ fun EditorScreen(
                     mapViewModel.transitoryMapRecord!!.pictureFileName
                 ) { response ->
                     if (response != null) {
-                        Log.v(TAG, "non-null api response: $response")
+                        dLogWithoutTrunc(TAG, "non-null api response: $response")
                         val graph =
                             AiMapDescParserImpl().parseAiMapDesc(response, OpenAiRespRoomAdapter())
-
 
                         mapGraph.value = graph
                         updateGraphVis(graph)
@@ -229,5 +228,37 @@ fun EditorScreen(
                 finalizeGraphEdit = updateGraphVis, isAddingEdge = false
             )
         }
+    }
+}
+
+
+/**
+ * Logs very large strings more fully than Log.d() while avoiding splitting a line between
+ * two log messages if possible
+ * Based on https://stackoverflow.com/a/48284047/10808625 , but has various tweaks, including a
+ *  quick if-else reversal so it can use tail recursion
+ * @param currTag the current context's tag
+ * @param longMsg potentially very long message to print out
+ */
+fun dLogWithoutTrunc(currTag: String, longMsg: String) {
+    val MAX_INDEX = 4000
+    val MIN_INDEX = 3000
+
+    if (longMsg.length <= MAX_INDEX) {
+        Log.d(currTag, longMsg)
+    } else { // String to be logged is longer than the max...
+        var currSegmentToLog = longMsg.substring(0, MAX_INDEX)
+        var indexOfNextSegmentStart = MAX_INDEX
+
+        // Try to find a substring break at a line end.
+        indexOfNextSegmentStart = currSegmentToLog.lastIndexOf('\n')
+        if (indexOfNextSegmentStart >= MIN_INDEX) {
+            currSegmentToLog = currSegmentToLog.substring(0, indexOfNextSegmentStart)
+        } else {
+            indexOfNextSegmentStart = MAX_INDEX
+        }
+        Log.d(currTag, currSegmentToLog)
+
+        dLogWithoutTrunc(currTag, longMsg.substring(indexOfNextSegmentStart))
     }
 }
