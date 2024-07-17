@@ -85,6 +85,7 @@ fun AddRemoveEdgeDialog(
             LaunchedEffect(key1 = Unit) {
                 possibleFirstNodes.value = currGraphState.value!!.vertexSet().toList()
             }
+
             LaunchedEffect(key1 = selectedFirstNode.value) {
                 val graphView = currGraphState.value!!
 
@@ -95,7 +96,8 @@ fun AddRemoveEdgeDialog(
                     possibleSecondNodes.value = graphView.vertexSet().filter {
                         val doesEdgeExist = graphView.containsEdge(selectedFirstNode.value, it)
                         val isOtherNodeCandidateForSecond =
-                            if (isAddingEdge) !doesEdgeExist else doesEdgeExist
+                            selectedFirstNode.value != it &&
+                            (if (isAddingEdge) !doesEdgeExist else doesEdgeExist)
                         isOtherNodeCandidateForSecond
                     }
                     if (selectedSecondNode.value != null
