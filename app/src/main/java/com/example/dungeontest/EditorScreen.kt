@@ -82,9 +82,9 @@ fun EditorScreen(
     // to prevent multiple API calls when screen is recomposed on configuration change
     var launched by rememberSaveable { mutableStateOf(false) }
 
-    var mapGraph: MutableState<Graph<MapRoom, DefaultEdge>?> =
-        rememberSaveable { mutableStateOf(null) }
-    var mapDotString: MutableState<String?> = rememberSaveable { mutableStateOf(null) }
+    val mapGraph: MutableState<Graph<MapRoom, DefaultEdge>?> =
+        remember { mutableStateOf(null) }
+    val mapDotString: MutableState<String?> = rememberSaveable { mutableStateOf(null) }
 
     val updateGraphVis = { updatedGraph: Graph<MapRoom, DefaultEdge> ->
         val dotString = GraphParser().graphToDot(updatedGraph)
@@ -138,13 +138,23 @@ fun EditorScreen(
                 }
             }
         }
-    }
-    else{
-        /* build the graph object from the dotString parse */
-        mapDotString.value = mapViewModel.transitoryMapRecord!!.dotString
+    } else {
+        Log.v(TAG, "DOT string is defined in viewmodel's transitory map record; on first composition after Activity creation/recreation (and not in other rounds of composition), will now try to populate map Graph and DOT string state varialbes")
+        LaunchedEffect(key1 = Unit) {
+            Log.v(TAG, "DOT string is defined in viewmodel's transitory map record, checking whether relevant state variables need to be populated")
+            if (mapDotString.value == null) {
+                Log.v(TAG, "updating DOT string state variable from viewmodel's transitory map record")
+                /* build the graph object from the dotString parse */
+                mapDotString.value = mapViewModel.transitoryMapRecord!!.dotString
+            }
 
-        /* build the graph object from the DOT string */
-        mapGraph.value = GraphParser().dotToGraph(mapViewModel.transitoryMapRecord!!.dotString!!)
+            if (mapGraph.value == null) {
+                Log.v(TAG, "recreating Graph object from DOT string")
+                /* build the graph object from the DOT string */
+                mapGraph.value =
+                    GraphParser().dotToGraph(mapViewModel.transitoryMapRecord!!.dotString!!)
+            }
+        }
     }
 
     when (renderMode.value) {
