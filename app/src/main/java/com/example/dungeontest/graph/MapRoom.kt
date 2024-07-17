@@ -1,6 +1,11 @@
 package com.example.dungeontest.graph
 
-data class MapRoom(val id: Int, var label: String) {
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+import java.io.Serializable
+
+@Parcelize
+data class MapRoom(val id: Int, var label: String): Parcelable, Serializable {
 
     override fun equals(other: Any?): Boolean {
         return other is MapRoom && hashCode() == other.hashCode()

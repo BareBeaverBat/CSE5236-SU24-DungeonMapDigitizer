@@ -118,7 +118,19 @@ fun RenameNodeDialog(
                 onClick = {
                     //the enabled check of isReadyToConfirm should prevent newRoomName.value from
                     // being null here
-                    selectedNode.value!!.label = newRoomName.value ?: "!!!ERROR- INVALID ROOM NAME"
+
+                    var wasSelectedNodeFoundInGraph = false
+                    for (node in currGraphState.value!!.vertexSet()) {
+                        if (node.id == selectedNode.value!!.id) {
+                            node.label = newRoomName.value ?: "!!!ERROR- INVALID ROOM NAME"
+                            wasSelectedNodeFoundInGraph = true
+                            break
+                        }
+                    }
+                    if (!wasSelectedNodeFoundInGraph) {
+                        Log.e(TAG, "couldn't find selected node ${selectedNode.value} in graph when saving a node rename")
+                    }
+
 
                     finalizeGraphEdit(currGraphState.value!!)
                     onDismissRequest()
