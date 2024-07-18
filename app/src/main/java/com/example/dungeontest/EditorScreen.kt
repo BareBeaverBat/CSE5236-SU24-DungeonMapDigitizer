@@ -83,7 +83,7 @@ fun EditorScreen(
     var launched by rememberSaveable { mutableStateOf(false) }
 
     val mapGraph: MutableState<Graph<MapRoom, DefaultEdge>?> =
-        remember { mutableStateOf(null) }
+        rememberSaveable { mutableStateOf(null) }
     val mapDotString: MutableState<String?> = rememberSaveable { mutableStateOf(null) }
 
     val updateGraphVis = { updatedGraph: Graph<MapRoom, DefaultEdge> ->
@@ -271,10 +271,9 @@ fun dLogWithoutTrunc(currTag: String, longMsg: String) {
         Log.d(currTag, longMsg)
     } else { // String to be logged is longer than the max...
         var currSegmentToLog = longMsg.substring(0, MAX_INDEX)
-        var indexOfNextSegmentStart = MAX_INDEX
 
         // Try to find a substring break at a line end.
-        indexOfNextSegmentStart = currSegmentToLog.lastIndexOf('\n')
+        var indexOfNextSegmentStart = currSegmentToLog.lastIndexOf('\n')
         if (indexOfNextSegmentStart >= MIN_INDEX) {
             currSegmentToLog = currSegmentToLog.substring(0, indexOfNextSegmentStart)
         } else {
