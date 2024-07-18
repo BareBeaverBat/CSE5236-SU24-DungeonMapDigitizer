@@ -1,5 +1,6 @@
 package com.example.dungeontest.composables
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
@@ -16,9 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.decode.SvgDecoder
+import coil.request.ImageRequest
+import coil.size.Size
 import okhttp3.HttpUrl
 import kotlin.math.roundToInt
 
@@ -52,7 +57,7 @@ fun MapVisualization(dotAsString: String) {
         .host("quickchart.io")
         .addPathSegment("graphviz")
         .addQueryParameter("graph", colorizedDotAsString)
-        .addQueryParameter("format", "png")
+        .addQueryParameter("format", "svg")
         .build()
 
     // display the image
@@ -83,8 +88,15 @@ fun MapVisualization(dotAsString: String) {
             },
         contentAlignment = Alignment.Center
     ) {
-        AsyncImage(
-            model = graphUrl,
+        val painter = rememberAsyncImagePainter(
+            model = ImageRequest.Builder(LocalContext.current)
+                .decoderFactory(SvgDecoder.Factory())
+                .data(graphUrl)
+                .size(Size.ORIGINAL) // Set the target size to load the image at.
+                .build()
+        )
+        Image(
+            painter = painter,
             contentDescription = null,
             modifier = Modifier
                 .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }

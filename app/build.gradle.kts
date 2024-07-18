@@ -97,6 +97,7 @@ dependencies {
     implementation(libs.moshi.adapters)
     implementation(libs.okhttp3)
     implementation(libs.coil)
+    implementation(libs.coil.svg)
     implementation(libs.saketSwipe)
     implementation(libs.mlkitscanner)
     implementation(libs.lottie)
