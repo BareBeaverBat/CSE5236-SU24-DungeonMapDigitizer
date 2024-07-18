@@ -27,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.Dialog
@@ -35,6 +36,14 @@ import org.jgrapht.Graph
 import org.jgrapht.graph.DefaultEdge
 
 private const val TAG = "AddRemoveEdgeDialog"
+
+const val firstDropdownLabel = "First Room"
+
+const val firstDropdownMenuTestTag = "firstDropdownMenu"
+
+const val secondDropdownLabel = "Second Room"
+
+const val secondDropdownMenuTestTag = "secondDropdownMenu"
 
 @Composable
 fun AddRemoveEdgeDialog(
@@ -123,9 +132,9 @@ fun AddRemoveEdgeDialog(
                     onValueChange = { selectedText ->
                         selectedFirstNode.value =
                             possibleFirstNodes.value.firstOrNull { it.label == selectedText }
-                    }, label = { Text("First Room") }, trailingIcon = {
+                    }, label = { Text(firstDropdownLabel) }, trailingIcon = {
                         Icon(firstNodesDropdownIcon,
-                            "button to ${if (isFirstNodesExpanded.value) "collapse" else "expand"} list of candidates for the first node",
+                            "button to ${if (isFirstNodesExpanded.value) "collapse" else "expand"} list of candidates for the first room",
                             Modifier.clickable { isFirstNodesExpanded.value = !isFirstNodesExpanded.value })
                     }, modifier = Modifier
                         .fillMaxWidth()
@@ -138,6 +147,7 @@ fun AddRemoveEdgeDialog(
                     expanded = isFirstNodesExpanded.value,
                     onDismissRequest = { isFirstNodesExpanded.value = false },
                     modifier = Modifier.width(with(LocalDensity.current) { dialogWidth.floatValue.toDp() })
+                        .testTag(firstDropdownMenuTestTag)
                 ) {
                     possibleFirstNodes.value.forEach {
                         DropdownMenuItem(
@@ -157,9 +167,9 @@ fun AddRemoveEdgeDialog(
                     onValueChange = { selectedText ->
                         selectedSecondNode.value =
                             possibleSecondNodes.value.firstOrNull { it.label == selectedText }
-                    }, label = { Text("Second Room") }, trailingIcon = {
+                    }, label = { Text(secondDropdownLabel) }, trailingIcon = {
                         Icon(secondNodesDropdownIcon,
-                            "button to ${if (isSecondNodesExpanded.value) "collapse" else "expand"} list of candidates for the second node",
+                            "button to ${if (isSecondNodesExpanded.value) "collapse" else "expand"} list of candidates for the second room",
                             Modifier.clickable { isSecondNodesExpanded.value = !isSecondNodesExpanded.value })
                     }, modifier = Modifier
                         .fillMaxWidth()
@@ -170,6 +180,7 @@ fun AddRemoveEdgeDialog(
                     expanded = isSecondNodesExpanded.value,
                     onDismissRequest = { isSecondNodesExpanded.value = false },
                     modifier = Modifier.width(with(LocalDensity.current) { dialogWidth.floatValue.toDp() })
+                        .testTag(secondDropdownMenuTestTag)
                 ) {
                     possibleSecondNodes.value.forEach {
                         DropdownMenuItem(
