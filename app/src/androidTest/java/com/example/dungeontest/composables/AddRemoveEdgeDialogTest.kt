@@ -67,9 +67,19 @@ class AddRemoveEdgeDialogTest {
         resultGraph = modifiedGraph
     }
 
+    //matcher is complicated b/c content description changes when dropdown is expanded
+    val matcherForFirstDropdownButton =
+        hasContentDescription("button to ", substring = true).and(
+            hasContentDescription("list of candidates for the first room", substring = true)
+        )
+    val matcherForSecondDropdownButton =
+        hasContentDescription("button to ", substring = true).and(
+            hasContentDescription("list of candidates for the second room", substring = true)
+        )
+    val matcherForCancelButton = hasText("Cancel")
 
     @Test
-    fun givenDialogOpenedToAddEdge_whenUserSpecifiesValidNewEdge_thenFinalizeMethodCalledAppropriately() {
+    fun givenDialogOpenedToAddEdge_whenUserSpecifiesValidNewEdge_thenFinalizeMethodCalledWithEdgeAdded() {
         val testGraph = baseTestGraph
         val graphState: MutableState<Graph<MapRoom, DefaultEdge>?> = mutableStateOf(testGraph)
 
@@ -86,23 +96,12 @@ class AddRemoveEdgeDialogTest {
 
         composeTestRule.onNodeWithText(firstDropdownLabel, substring = true).assertIsDisplayed()
 
-        //matcher is complicated b/c content description changes when dropdown is expanded
-        val matcherForFirstDropdownButton =
-            hasContentDescription("button to ", substring = true).and(
-                hasContentDescription("list of candidates for the first room", substring = true)
-            )
         composeTestRule.onNode(matcherForFirstDropdownButton)
             .assertIsDisplayed().assertIsEnabled()
         composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
 
-
         composeTestRule.onNodeWithText(secondDropdownLabel, substring = true).assertIsDisplayed()
 
-        //matcher is complicated b/c content description changes when dropdown is expanded
-        val matcherForSecondDropdownButton =
-            hasContentDescription("button to ", substring = true).and(
-                hasContentDescription("list of candidates for the second room", substring = true)
-            )
         composeTestRule.onNode(matcherForSecondDropdownButton)
             .assertIsDisplayed().assertIsEnabled()
         composeTestRule.onNodeWithTag(secondDropdownTag).assertIsNotDisplayed()
@@ -110,7 +109,6 @@ class AddRemoveEdgeDialogTest {
         val matcherForConfirmButton = hasText("Add Hallway")
         composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsNotEnabled()
 
-        val matcherForCancelButton = hasText("Cancel")
         composeTestRule.onNode(matcherForCancelButton).assertIsDisplayed().assertIsEnabled()
 
         //Act on page
@@ -129,7 +127,7 @@ class AddRemoveEdgeDialogTest {
         composeTestRule.onNode(matcherForSecondDropdownButton).performClick()
         composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
         composeTestRule.onNodeWithTag(secondDropdownTag).assertIsDisplayed()
-        //room3 has no neighbors, but we aren't supporting the addition of an edge from itself to itself
+        //room4 has no neighbors, but we aren't supporting the addition of an edge from itself to itself
         composeTestRule.onNodeWithTag(secondDropdownTag)
             .onChildren().assertCountEquals(rooms.size-1)
         composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsNotEnabled()
@@ -150,8 +148,92 @@ class AddRemoveEdgeDialogTest {
         assertTrue(resultGraph!!.containsEdge(rooms[3], rooms[4]))
     }
 
-    //todo test of removing an edge
-    // check what 2nd dropdown's options are, both before and after selecting something for first dropdown
+
+    @Test
+    fun givenDialogOpenedToDropEdge_whenUserSpecifiesExistingEdge_thenFinalizeMethodCalledWithEdgeRemoved() {
+        val testGraph = baseTestGraph
+        val graphState: MutableState<Graph<MapRoom, DefaultEdge>?> = mutableStateOf(testGraph)
+
+        composeTestRule.setContent {
+            AddRemoveEdgeDialog(
+                onDismissRequest = testDismissCallback,
+                currGraphState = graphState,
+                finalizeGraphEdit = testFinalizeCallback,
+                isAddingEdge = false
+            )
+        }
+
+        //Check that things initially rendered as intended
+
+        composeTestRule.onNodeWithText(firstDropdownLabel, substring = true).assertIsDisplayed()
+
+        composeTestRule.onNode(matcherForFirstDropdownButton)
+            .assertIsDisplayed().assertIsEnabled()
+        composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
+
+        composeTestRule.onNodeWithText(secondDropdownLabel, substring = true).assertIsDisplayed()
+
+        composeTestRule.onNode(matcherForSecondDropdownButton)
+            .assertIsDisplayed().assertIsEnabled()
+        composeTestRule.onNodeWithTag(secondDropdownTag).assertIsNotDisplayed()
+
+        val matcherForConfirmButton = hasText("Remove Hallway")
+        composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsNotEnabled()
+
+        composeTestRule.onNode(matcherForCancelButton).assertIsDisplayed().assertIsEnabled()
+
+        //Act on page
+        composeTestRule.onNode(matcherForFirstDropdownButton).performClick()
+        composeTestRule.onNodeWithTag(firstDropdownTag).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(firstDropdownTag)
+            .onChildren().assertCountEquals(rooms.size)
+        composeTestRule.onNodeWithTag(secondDropdownTag).assertIsNotDisplayed()
+
+        composeTestRule.onNodeWithTag(firstDropdownTag)
+            .onChildren().filter(hasText(roomNames[3])).onFirst().performClick()
+        composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
+        composeTestRule.onNodeWithText(firstDropdownLabel, substring = true).assertTextContains(roomNames[3])
+        composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsNotEnabled()
+
+        composeTestRule.onNode(matcherForSecondDropdownButton).performClick()
+        composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
+        composeTestRule.onNodeWithTag(secondDropdownTag).assertIsDisplayed()
+        //room4 has no neighbors
+        composeTestRule.onNodeWithTag(secondDropdownTag).onChildren().assertCountEquals(0)
+        composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsNotEnabled()
+
+        composeTestRule.onNode(matcherForSecondDropdownButton).performClick()
+        composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
+        composeTestRule.onNodeWithTag(secondDropdownTag).assertIsNotDisplayed()
+        composeTestRule.onNodeWithText(firstDropdownLabel, substring = true).assertTextContains(roomNames[3])
+        composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsNotEnabled()
+
+        composeTestRule.onNode(matcherForFirstDropdownButton).performClick()
+        composeTestRule.onNodeWithTag(firstDropdownTag)
+            .onChildren().filter(hasText(roomNames[1])).onFirst().performClick()
+        composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
+        composeTestRule.onNodeWithText(firstDropdownLabel, substring = true).assertTextContains(roomNames[1])
+        composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsNotEnabled()
+
+        composeTestRule.onNode(matcherForSecondDropdownButton).performClick()
+        composeTestRule.onNodeWithTag(secondDropdownTag).onChildren().assertCountEquals(3)
+        composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsNotEnabled()
+
+        composeTestRule.onNodeWithTag(secondDropdownTag)
+            .onChildren().filter(hasText(roomNames[4])).onFirst().performClick()
+        composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
+        composeTestRule.onNodeWithTag(secondDropdownTag).assertIsNotDisplayed()
+        composeTestRule.onNodeWithText(secondDropdownLabel, substring = true).assertTextContains(roomNames[4])
+        composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsEnabled()
+
+        assertFalse(wasDismissCallbackCalled)
+        assertNull(resultGraph)
+
+        composeTestRule.onNode(matcherForConfirmButton).performClick()
+        assertTrue(wasDismissCallbackCalled)
+        assertNotNull(resultGraph)
+        assertFalse(resultGraph!!.containsEdge(rooms[1], rooms[4]))
+    }
 
 
 }
