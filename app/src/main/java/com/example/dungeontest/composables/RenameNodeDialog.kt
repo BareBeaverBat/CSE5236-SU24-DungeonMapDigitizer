@@ -27,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.Dialog
@@ -34,7 +35,16 @@ import com.example.dungeontest.graph.MapRoom
 import org.jgrapht.Graph
 import org.jgrapht.graph.DefaultEdge
 
+
+const val dropdownNotChosenText = "?"
+
 private const val TAG = "RenameNodeDialog"
+
+const val roomDropdownLabel = "Room to rename"
+const val roomDropdownTestTag = "roomDropdownMenu"
+const val newRoomNameFieldLabel = "New Room Name"
+const val renameConfirmButtonText = "Rename Room"
+
 
 @Composable
 fun RenameNodeDialog(
@@ -80,13 +90,13 @@ fun RenameNodeDialog(
             val dialogWidth = remember { mutableFloatStateOf(0f) }
 
             Box {
-                OutlinedTextField(value = selectedNode.value?.label ?: "?",
+                OutlinedTextField(value = selectedNode.value?.label ?: dropdownNotChosenText,
                     onValueChange = { selectedText ->
                         selectedNode.value =
                             possibleNodes.value.firstOrNull { it.label == selectedText }
-                    }, label = { Text("Room to rename") }, trailingIcon = {
+                    }, label = { Text(roomDropdownLabel) }, trailingIcon = {
                         Icon(nodesDropdownIcon,
-                            "button to ${if (isNodesExpanded.value) "collapse" else "expand"} list of nodes",
+                            "button to ${if (isNodesExpanded.value) "collapse" else "expand"} list of rooms",
                             Modifier.clickable { isNodesExpanded.value = !isNodesExpanded.value })
                     }, modifier = Modifier
                         .fillMaxWidth()
@@ -99,6 +109,7 @@ fun RenameNodeDialog(
                     expanded = isNodesExpanded.value,
                     onDismissRequest = { isNodesExpanded.value = false },
                     modifier = Modifier.width(with(LocalDensity.current) { dialogWidth.floatValue.toDp() })
+                        .testTag(roomDropdownTestTag)
                 ) {
                     possibleNodes.value.forEach {
                         DropdownMenuItem(
@@ -112,7 +123,7 @@ fun RenameNodeDialog(
                 }
             }
 
-            TextInputField("", newRoomName, "New Room Name")
+            TextInputField("", newRoomName, newRoomNameFieldLabel)
 
             Button(enabled = isReadyToConfirm.value,
                 onClick = {
@@ -135,7 +146,7 @@ fun RenameNodeDialog(
                     finalizeGraphEdit(currGraphState.value!!)
                     onDismissRequest()
                 }) {
-                Text("Rename Room")
+                Text(renameConfirmButtonText)
             }
 
             Button(onClick = onDismissRequest) {

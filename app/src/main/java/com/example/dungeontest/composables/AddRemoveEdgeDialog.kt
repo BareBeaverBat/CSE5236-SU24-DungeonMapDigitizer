@@ -128,7 +128,7 @@ fun AddRemoveEdgeDialog(
             //start of dropdown for selecting first node (out of the two nodes that currently do
             // or don't have an edge between them)
             Box {
-                OutlinedTextField(value = selectedFirstNode.value?.label ?: "?",
+                OutlinedTextField(value = selectedFirstNode.value?.label ?: dropdownNotChosenText,
                     onValueChange = { selectedText ->
                         selectedFirstNode.value =
                             possibleFirstNodes.value.firstOrNull { it.label == selectedText }

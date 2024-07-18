@@ -95,12 +95,13 @@ class AddRemoveEdgeDialogTest {
         //Check that things initially rendered as intended
 
         composeTestRule.onNodeWithText(firstDropdownLabel, substring = true).assertIsDisplayed()
+            .assertTextContains(dropdownNotChosenText)
 
-        composeTestRule.onNode(matcherForFirstDropdownButton)
-            .assertIsDisplayed().assertIsEnabled()
+        composeTestRule.onNode(matcherForFirstDropdownButton).assertIsDisplayed().assertIsEnabled()
         composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
 
         composeTestRule.onNodeWithText(secondDropdownLabel, substring = true).assertIsDisplayed()
+            .assertTextContains(dropdownNotChosenText)
 
         composeTestRule.onNode(matcherForSecondDropdownButton)
             .assertIsDisplayed().assertIsEnabled()
@@ -114,29 +115,31 @@ class AddRemoveEdgeDialogTest {
         //Act on page
         composeTestRule.onNode(matcherForFirstDropdownButton).performClick()
         composeTestRule.onNodeWithTag(firstDropdownTag).assertIsDisplayed()
-        composeTestRule.onNodeWithTag(firstDropdownTag)
             .onChildren().assertCountEquals(rooms.size)
         composeTestRule.onNodeWithTag(secondDropdownTag).assertIsNotDisplayed()
 
         composeTestRule.onNodeWithTag(firstDropdownTag)
             .onChildren().filter(hasText(roomNames[3])).onFirst().performClick()
         composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
-        composeTestRule.onNodeWithText(firstDropdownLabel, substring = true).assertTextContains(roomNames[3])
+        composeTestRule.onNodeWithText(firstDropdownLabel, substring = true)
+            .assertTextContains(roomNames[3])
+        composeTestRule.onNodeWithText(secondDropdownLabel, substring = true)
+            .assertTextContains(dropdownNotChosenText)
         composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsNotEnabled()
 
         composeTestRule.onNode(matcherForSecondDropdownButton).performClick()
         composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
-        composeTestRule.onNodeWithTag(secondDropdownTag).assertIsDisplayed()
         //room4 has no neighbors, but we aren't supporting the addition of an edge from itself to itself
-        composeTestRule.onNodeWithTag(secondDropdownTag)
-            .onChildren().assertCountEquals(rooms.size-1)
+        composeTestRule.onNodeWithTag(secondDropdownTag).assertIsDisplayed()
+            .onChildren().assertCountEquals(rooms.size - 1)
         composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsNotEnabled()
 
         composeTestRule.onNodeWithTag(secondDropdownTag)
             .onChildren().filter(hasText(roomNames[4])).onFirst().performClick()
         composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
         composeTestRule.onNodeWithTag(secondDropdownTag).assertIsNotDisplayed()
-        composeTestRule.onNodeWithText(secondDropdownLabel, substring = true).assertTextContains(roomNames[4])
+        composeTestRule.onNodeWithText(secondDropdownLabel, substring = true)
+            .assertTextContains(roomNames[4])
         composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsEnabled()
 
         assertFalse(wasDismissCallbackCalled)
@@ -185,34 +188,38 @@ class AddRemoveEdgeDialogTest {
         //Act on page
         composeTestRule.onNode(matcherForFirstDropdownButton).performClick()
         composeTestRule.onNodeWithTag(firstDropdownTag).assertIsDisplayed()
-        composeTestRule.onNodeWithTag(firstDropdownTag)
             .onChildren().assertCountEquals(rooms.size)
         composeTestRule.onNodeWithTag(secondDropdownTag).assertIsNotDisplayed()
 
         composeTestRule.onNodeWithTag(firstDropdownTag)
             .onChildren().filter(hasText(roomNames[3])).onFirst().performClick()
         composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
-        composeTestRule.onNodeWithText(firstDropdownLabel, substring = true).assertTextContains(roomNames[3])
+        composeTestRule.onNodeWithText(firstDropdownLabel, substring = true)
+            .assertTextContains(roomNames[3])
         composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsNotEnabled()
 
         composeTestRule.onNode(matcherForSecondDropdownButton).performClick()
         composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
-        composeTestRule.onNodeWithTag(secondDropdownTag).assertIsDisplayed()
         //room4 has no neighbors
-        composeTestRule.onNodeWithTag(secondDropdownTag).onChildren().assertCountEquals(0)
+        composeTestRule.onNodeWithTag(secondDropdownTag).assertIsDisplayed()
+            .onChildren().assertCountEquals(0)
         composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsNotEnabled()
 
         composeTestRule.onNode(matcherForSecondDropdownButton).performClick()
         composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
         composeTestRule.onNodeWithTag(secondDropdownTag).assertIsNotDisplayed()
-        composeTestRule.onNodeWithText(firstDropdownLabel, substring = true).assertTextContains(roomNames[3])
+        composeTestRule.onNodeWithText(firstDropdownLabel, substring = true)
+            .assertTextContains(roomNames[3])
+        composeTestRule.onNodeWithText(secondDropdownLabel, substring = true)
+            .assertTextContains(dropdownNotChosenText)
         composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsNotEnabled()
 
         composeTestRule.onNode(matcherForFirstDropdownButton).performClick()
         composeTestRule.onNodeWithTag(firstDropdownTag)
             .onChildren().filter(hasText(roomNames[1])).onFirst().performClick()
         composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
-        composeTestRule.onNodeWithText(firstDropdownLabel, substring = true).assertTextContains(roomNames[1])
+        composeTestRule.onNodeWithText(firstDropdownLabel, substring = true)
+            .assertTextContains(roomNames[1])
         composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsNotEnabled()
 
         composeTestRule.onNode(matcherForSecondDropdownButton).performClick()
@@ -223,7 +230,8 @@ class AddRemoveEdgeDialogTest {
             .onChildren().filter(hasText(roomNames[4])).onFirst().performClick()
         composeTestRule.onNodeWithTag(firstDropdownTag).assertIsNotDisplayed()
         composeTestRule.onNodeWithTag(secondDropdownTag).assertIsNotDisplayed()
-        composeTestRule.onNodeWithText(secondDropdownLabel, substring = true).assertTextContains(roomNames[4])
+        composeTestRule.onNodeWithText(secondDropdownLabel, substring = true)
+            .assertTextContains(roomNames[4])
         composeTestRule.onNode(matcherForConfirmButton).assertIsDisplayed().assertIsEnabled()
 
         assertFalse(wasDismissCallbackCalled)
