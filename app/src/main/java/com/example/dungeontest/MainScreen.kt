@@ -177,7 +177,7 @@ fun MainScreen(
                 permissionLauncher.launch(Manifest.permission.CAMERA)
 
             }) {
-                Icon(Icons.Filled.Add, contentDescription = "Floating action button.")
+                Icon(Icons.Filled.Add, contentDescription = "Create Map Button")
 
             }
         },

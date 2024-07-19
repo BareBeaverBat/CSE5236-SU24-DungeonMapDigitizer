@@ -28,7 +28,7 @@ import okhttp3.HttpUrl
 import kotlin.math.roundToInt
 
 @Composable
-fun MapVisualization(dotAsString: String) {
+fun MapVisualization(dotAsString: String, imageSummary: String) {
     val currPrimaryColor = with(MaterialTheme.colorScheme.primary) {
         String.format("%.1f %.1f %.1f", red, green, blue)
     }
@@ -97,7 +97,7 @@ fun MapVisualization(dotAsString: String) {
         )
         Image(
             painter = painter,
-            contentDescription = null,
+            contentDescription = imageSummary,
             modifier = Modifier
                 .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
                 .graphicsLayer(scaleX = scale, scaleY = scale)
