@@ -1,9 +1,6 @@
-package com.example.dungeontest.graphs
+package com.example.dungeontest.graph
 
-import com.example.dungeontest.graph.MapRoom
 import org.junit.Test
-import com.example.dungeontest.graph.AiMapDescParserImpl
-import com.example.dungeontest.graph.OpenAiRespRoomAdapter
 import com.example.dungeontest.readJsonFromResources
 
 import org.junit.Assert.*
