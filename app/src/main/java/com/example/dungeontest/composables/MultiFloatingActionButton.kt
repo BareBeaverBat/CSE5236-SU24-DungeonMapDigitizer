@@ -75,7 +75,7 @@ fun MultiFloatingActionButton(items: List<MiniFabItems>) {
                 .rotate(rotation),
             containerColor = MaterialTheme.colorScheme.primary,
         ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Button to Save, Add, Edit and Remove Rooms")
+            Icon(imageVector = Icons.Default.Add, contentDescription = "Button to Save Map, Rename Room, and Add or Remove Hallway")
         }
     }
 }
