@@ -150,7 +150,7 @@ fun EditorScreen(
     when (renderMode.value) {
         EditorScreenRenderModes.LOADING_OVERLAY -> {
             LoadingOverlay(
-                message = statusMessage.value,
+                message = statusMessage.value
             )
         }
         EditorScreenRenderModes.VIEWER -> {
@@ -214,7 +214,12 @@ fun EditorScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         mapDotString.value?.let {
-                            MapVisualization(dotAsString = it)
+                            MapVisualization(dotAsString = it,
+                                if(mapGraph.value == null)
+                                    "Map can't be visualized"
+                                else
+                                    "Visualization of map with ${mapGraph.value!!.vertexSet().size} rooms"
+                            )
                         }
                     }
                 }
